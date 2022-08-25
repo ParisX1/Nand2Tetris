@@ -4,8 +4,8 @@ import sys
 read_file_name = sys.argv[1]
 write_file_name = read_file_name[0:read_file_name.index('.')] + ".asm"
 '''
-read_file_name = "StackArithmetic\StackTest\StackTest.vm"
-write_file_name = "StackArithmetic\StackTest\StackTest.asm"
+read_file_name = "MemoryAccess\BasicTest\BasicTest.vm"
+write_file_name = "MemoryAccess\BasicTest\BasicTest.asm"
 #global jump_count
 jump_count = 0
 
@@ -57,6 +57,9 @@ def code_writer(command, arg1, arg2):
     if command == "push":
         return generate_push_string(arg1, arg2)
 
+    elif command == "pop":
+        return generate_pop_string(arg1, arg2)
+
     elif command in comparison_code:
         alc_code = comparison_code[command]
         return generate_comparison_string(alc_code)
@@ -69,24 +72,18 @@ def code_writer(command, arg1, arg2):
         alc_code = alc_double_code[command]
         return generate_alc_double_string(alc_code)
     
-
-##########################################
 def move_sp_forward():
     assembly_string = ""
     assembly_string += "@SP" + '\n'
     assembly_string += "M=M+1" + '\n'
     return assembly_string
-##########################################
 
-##########################################
 def move_sp_back():
     assembly_string = ""
     assembly_string += "@SP" + '\n'
     assembly_string += "M=M-1" + '\n'
     return assembly_string
-##########################################
 
-##########################################
 def set_m_to_sp():
     # Dereference sp pointer value ie: "M = *sp"
     # Next instruction: "M = x", will store value x at location RAM[M]
@@ -94,7 +91,6 @@ def set_m_to_sp():
     assembly_string += "@SP" + '\n'
     assembly_string += "A=M" + '\n'
     return assembly_string
-##########################################
 
 def generate_alc_double_string(alc_code):
     assembly_string = ""
@@ -148,6 +144,21 @@ def generate_comparison_string(alc_code):
     jump_count += 1
     return assembly_string
 
+def calculate_memory_location(arg1, arg2):
+    # Sets A-register to location arg1, arg2
+    # Eg arg1, arg2: temp 2; will set: A, M = value of temp 2 location in RAM
+    assembly_string = ""
+    # Base address
+    arg1_string =  memory_location[arg1]
+    assembly_string += "@" + arg1_string + '\n'
+    assembly_string += "D=A" + '\n'
+    # Specified address modified
+    assembly_string += "@" + arg2 + '\n'
+    assembly_string += "A=D+A" + '\n'
+    # Store Value
+    #assembly_string += "D=M" + '\n'
+    return assembly_string
+
 def generate_push_string(arg1, arg2):
     assembly_string = ""
     if arg1 == "constant":
@@ -156,22 +167,58 @@ def generate_push_string(arg1, arg2):
         assembly_string += set_m_to_sp()
         assembly_string += "M=D" + '\n'
     else:
-        # Put all this into a function...
-        # Base address
-        arg1_string =  memory_location[arg1]
-        assembly_string += "@" + arg1_string + arg2 + '\n'
-        assembly_string += "D=A" + '\n'
-        # Specified address
-        assembly_string += "@" + "arg2" + '\n'
-        assembly_string += "A=D+A" + '\n'   # Sets M to location of specified address
-        # Store Value
-        assembly_string += "D=M" + '\n'
-        # Push value to SP
+        assembly_string += calculate_memory_location(arg1, arg2)
         assembly_string += "@SP" + '\n'
-        assembly_string += "A=D" + '\n'
+        assembly_string += "A=D" + '\n' # Stores value at SP location
 
     assembly_string += move_sp_forward()
     return assembly_string
+
+
+def generate_pop_string(arg1, arg2):
+    assembly_string = ""
+
+    '''
+    # FIRST ATTEMPT
+    assembly_string += move_sp_back()
+    #1. Get value from stack, store in R13
+    assembly_string += "@SP" + '\n'
+    assembly_string += "A=M" + '\n'
+    assembly_string += "D=M" + '\n'
+
+    assembly_string += "@R13" + '\n'
+    assembly_string += "M=D" + '\n'
+    
+    #2. Calculate memory location
+    assembly_string += calculate_memory_location(arg1, arg2)
+    assembly_string += "D=A" + '\n'
+
+    #3. Place value at location
+    assembly_string += "@R13" + '\n'
+    assembly_string += "M=D" + '\n'
+    '''
+
+    assembly_string = ""
+
+    #2. Calculate memory location
+    assembly_string += calculate_memory_location(arg1, arg2)
+    assembly_string += "@R13" + '\n'
+    assembly_string += "M=D" + '\n' # Location to put value saved in R13
+
+    #1. Get value from stack
+    assembly_string += move_sp_back()
+    assembly_string += "@SP" + '\n'
+    assembly_string += "A=M" + '\n'
+    assembly_string += "D=M" + '\n'
+
+    #3. Place value at location
+    assembly_string += "@R13" + '\n'
+    assembly_string += "A=M" + '\n'
+    assembly_string += "M=D" + '\n'
+
+    assembly_string += move_sp_back()
+    return assembly_string
+
 
 with open(read_file_name) as read_file:
     write_file = open(write_file_name, "w")
