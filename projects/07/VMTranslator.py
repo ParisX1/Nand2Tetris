@@ -1,15 +1,17 @@
 '''
-from curses.ascii import SP
 import sys
 read_file_name = sys.argv[1]
-write_file_name = read_file_name[0:read_file_name.index('.')] + ".asm"
+base_file_name = read_file_name[0:read_file_name.index('.')]
+write_file_name = base_file_name + ".asm"
 '''
-read_file_name = "MemoryAccess\PointerTest\PointerTest.vm"
-write_file_name = "MemoryAccess\PointerTest\PointerTest.asm"
-#global jump_count
-jump_count = 0
 
-# Arithmetic Logical Commands With 2 Variables
+base_file_name = "StaticTest"
+read_file_name = "MemoryAccess\StaticTest\StaticTest.vm"
+write_file_name = "MemoryAccess\StaticTest\StaticTest.asm"
+
+
+jump_count = 0 #global jump_count
+
 alc_double_code = {
     "add" : "D+M", 
     "sub" : "M-D", 
@@ -150,7 +152,6 @@ def calculate_memory_location(arg1, arg2):
     if arg1 =="temp":
         assembly_string += "@5" + '\n' # Base memory for temp
         assembly_string += "D=A" + '\n'
-        
         assembly_string += "@" + arg2 + '\n'
         assembly_string += "D=D+A" + '\n'
 
@@ -159,7 +160,10 @@ def calculate_memory_location(arg1, arg2):
             assembly_string += "@THIS" + '\n' # Base memory for this
         else:
             assembly_string += "@THAT" + '\n' # Base memory for that
-        
+        assembly_string += "D=A" + '\n'
+
+    elif arg1 =="static":
+        assembly_string += "@" + base_file_name + arg2 + '\n'
         assembly_string += "D=A" + '\n'
 
     else:
@@ -185,53 +189,24 @@ def generate_push_string(arg1, arg2):
         assembly_string += "D=M" + '\n'
         assembly_string += set_m_to_sp()
         assembly_string += "M=D" + '\n' # Stores value at SP location
-
     assembly_string += move_sp_forward()
     return assembly_string
 
-
 def generate_pop_string(arg1, arg2):
     assembly_string = ""
-    
-    # FIRST ATTEMPT
-    '''
-    assembly_string += move_sp_back()
-    #1. Get value from stack, store in R13
-    assembly_string += "@SP" + '\n'
-    assembly_string += "A=M" + '\n'
-    assembly_string += "D=M" + '\n'
-
-    assembly_string += "@R13" + '\n'
-    assembly_string += "M=D" + '\n'
-    
-    #2. Calculate memory location
-    assembly_string += calculate_memory_location(arg1, arg2)
-    assembly_string += "D=A" + '\n'
-
-    #3. Place value at location
-    assembly_string += "@R13" + '\n'
-    assembly_string += "M=D" + '\n'
-    '''
-
-    assembly_string = ""
-
-    #2. Calculate memory location
+    #1. Calculate memory location
     assembly_string += calculate_memory_location(arg1, arg2)
     assembly_string += "@R13" + '\n'
     assembly_string += "M=D" + '\n' # Location to put value saved in R13
-
-    #1. Get value from stack
+    #2. Get value from stack
     assembly_string += move_sp_back()
     assembly_string += "@SP" + '\n'
     assembly_string += "A=M" + '\n'
     assembly_string += "D=M" + '\n'
-
     #3. Place value at location
     assembly_string += "@R13" + '\n'
     assembly_string += "A=M" + '\n'
     assembly_string += "M=D" + '\n'
-
-    #assembly_string += move_sp_back()
     return assembly_string
 
 with open(read_file_name) as read_file:
