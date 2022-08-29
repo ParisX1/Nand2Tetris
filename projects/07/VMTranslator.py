@@ -39,7 +39,6 @@ memory_location = {
     "argument" : "ARG",
     "this"     : "THIS",
     "that"     : "THAT",
-    "temp"     : "TEMP"
 }
 
 ##########################################
@@ -145,18 +144,21 @@ def generate_comparison_string(alc_code):
     return assembly_string
 
 def calculate_memory_location(arg1, arg2):
-    # Sets A-register to location arg1, arg2
+    # Sets D-register to location arg1, arg2
     # Eg arg1, arg2: temp 2; will set: A, M = value of temp 2 location in RAM
     assembly_string = ""
-    # Base address
-    arg1_string =  memory_location[arg1]
-    assembly_string += "@" + arg1_string + '\n'
-    assembly_string += "D=A" + '\n'
-    # Specified address modified
+    if arg1 =="temp":
+        assembly_string += "@5" + '\n' # Base memory for temp
+        assembly_string += "D=A" + '\n'
+
+    else:
+        arg1_string =  memory_location[arg1]
+        assembly_string += "@" + arg1_string + '\n'
+        assembly_string += "D=M" + '\n'
+    
     assembly_string += "@" + arg2 + '\n'
-    assembly_string += "A=D+A" + '\n'
-    # Store Value
-    #assembly_string += "D=M" + '\n'
+    assembly_string += "D=D+A" + '\n'
+    
     return assembly_string
 
 def generate_push_string(arg1, arg2):
@@ -168,8 +170,10 @@ def generate_push_string(arg1, arg2):
         assembly_string += "M=D" + '\n'
     else:
         assembly_string += calculate_memory_location(arg1, arg2)
-        assembly_string += "@SP" + '\n'
-        assembly_string += "A=D" + '\n' # Stores value at SP location
+        assembly_string += "A=D" + '\n'
+        assembly_string += "D=M" + '\n'
+        assembly_string += set_m_to_sp()
+        assembly_string += "M=D" + '\n' # Stores value at SP location
 
     assembly_string += move_sp_forward()
     return assembly_string
@@ -216,7 +220,7 @@ def generate_pop_string(arg1, arg2):
     assembly_string += "A=M" + '\n'
     assembly_string += "M=D" + '\n'
 
-    assembly_string += move_sp_back()
+    #assembly_string += move_sp_back()
     return assembly_string
 
 
