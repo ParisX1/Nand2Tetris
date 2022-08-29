@@ -4,8 +4,8 @@ import sys
 read_file_name = sys.argv[1]
 write_file_name = read_file_name[0:read_file_name.index('.')] + ".asm"
 '''
-read_file_name = "MemoryAccess\BasicTest\BasicTest.vm"
-write_file_name = "MemoryAccess\BasicTest\BasicTest.asm"
+read_file_name = "MemoryAccess\PointerTest\PointerTest.vm"
+write_file_name = "MemoryAccess\PointerTest\PointerTest.asm"
 #global jump_count
 jump_count = 0
 
@@ -144,20 +144,31 @@ def generate_comparison_string(alc_code):
     return assembly_string
 
 def calculate_memory_location(arg1, arg2):
-    # Sets D-register to location arg1, arg2
-    # Eg arg1, arg2: temp 2; will set: A, M = value of temp 2 location in RAM
+    # Sets D-register to location specified by arg1, arg2
+    # Eg "temp 2" will set: D = value of temp 2 location in RAM
     assembly_string = ""
     if arg1 =="temp":
         assembly_string += "@5" + '\n' # Base memory for temp
+        assembly_string += "D=A" + '\n'
+        
+        assembly_string += "@" + arg2 + '\n'
+        assembly_string += "D=D+A" + '\n'
+
+    elif arg1 =="pointer":
+        if arg2 == '0':
+            assembly_string += "@THIS" + '\n' # Base memory for this
+        else:
+            assembly_string += "@THAT" + '\n' # Base memory for that
+        
         assembly_string += "D=A" + '\n'
 
     else:
         arg1_string =  memory_location[arg1]
         assembly_string += "@" + arg1_string + '\n'
         assembly_string += "D=M" + '\n'
-    
-    assembly_string += "@" + arg2 + '\n'
-    assembly_string += "D=D+A" + '\n'
+        
+        assembly_string += "@" + arg2 + '\n'
+        assembly_string += "D=D+A" + '\n'
     
     return assembly_string
 
@@ -181,9 +192,9 @@ def generate_push_string(arg1, arg2):
 
 def generate_pop_string(arg1, arg2):
     assembly_string = ""
-
-    '''
+    
     # FIRST ATTEMPT
+    '''
     assembly_string += move_sp_back()
     #1. Get value from stack, store in R13
     assembly_string += "@SP" + '\n'
@@ -222,7 +233,6 @@ def generate_pop_string(arg1, arg2):
 
     #assembly_string += move_sp_back()
     return assembly_string
-
 
 with open(read_file_name) as read_file:
     write_file = open(write_file_name, "w")
