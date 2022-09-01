@@ -203,12 +203,12 @@ def restore_values(memory_name):
     # Get value of LCL and deduct offset
     assembly_string += "@R13" + '\n'
     assembly_string += "A=M" + '\n'
-    assembly_string += "D=M-D" + '\n'
+    assembly_string += "D=A-D" + '\n'
 
     # Store value at memory location D into D
     assembly_string += "A=D" + '\n'
     assembly_string += "A=M" + '\n'
-    assembly_string += "D=M" + '\n'
+    assembly_string += "D=A" + '\n'
 
     # Store value of D into base memory
     assembly_string += "@" + memory_name + '\n'
@@ -270,31 +270,29 @@ def generate_function_string(arg1, arg2):
 def generate_return_string(num_args):
     assembly_string = ""
     # 1. Save LCL into R13
-    assembly_string += "@ARG" + '\n'
+    assembly_string += "@LCL" + '\n'
     assembly_string += "A=M" + '\n'
-    assembly_string += "D=M" + '\n'
+    assembly_string += "D=A" + '\n'
     assembly_string += "@R13" + '\n'
     assembly_string += "M=D" + '\n'
-    # 2. Save return address to R14 (LCL - 5)
+    # 2. Save return address (LCL - 5) to R14 
     assembly_string += "@5" + '\n'     # Calc where in memory the ret address is
     assembly_string += "D=A" + '\n'
     assembly_string += "@LCL" + '\n'
     assembly_string += "A=M" + '\n'
-    assembly_string += "D=M-D" + '\n'  # D = memory location of ret address 
+    assembly_string += "D=A-D" + '\n'  # D = memory location of ret address 
     
     assembly_string += "A=D" + '\n'     # Goto return address location and save value
     assembly_string += "A=M" + '\n'
-    assembly_string += "D=M" + '\n'    # D = value of return address
+    assembly_string += "D=A" + '\n'    # D = value of return address
 
-    assembly_string += "@R13" + '\n'    # Save value of return address in R13
-    assembly_string += "A=M" + '\n'
+    assembly_string += "@R14" + '\n'    # Save value of return address in R14
     assembly_string += "M=D" + '\n'
 
     # 3. Place return value back to return address
     assembly_string += move_sp_back() # Save return value into D
     assembly_string += set_m_to_sp()
     assembly_string += "D=M" + '\n'
-    assembly_string += "D=A" + '\n'
 
     assembly_string += "@ARG" + '\n'
     assembly_string += "A=M" + '\n'
@@ -303,7 +301,7 @@ def generate_return_string(num_args):
     # 4. Reset stack pointer
     assembly_string += "@ARG" + '\n'
     assembly_string += "A=M" + '\n'
-    assembly_string += "D=M" + '\n'
+    assembly_string += "D=A" + '\n'
     assembly_string += "@SP" + '\n'
     assembly_string += "M=D" + '\n'
     assembly_string += move_sp_forward()
