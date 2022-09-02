@@ -10,7 +10,10 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": ["FunctionCalls/SimpleFunction/SimpleFunction.vm"],
+            //"args": ["FunctionCalls/NestedCall/Sys.vm"],
+            //"args": ["FunctionCalls/StaticsTest"],
+             "args": ["FunctionCalls/SimpleFunction/SimpleFunction.vm"],
+            // "args": ["FunctionCalls/NestedCall/TestNest.vm"],
             "justMyCode": true
         }
     ]

@@ -1,12 +1,6 @@
 import sys
 import os
 
-read_file_full_path = sys.argv[1]
-read_file_name = os.path.basename(read_file_full_path)
-base_file_name = read_file_name[0:read_file_name.index('.')]
-
-write_file_full_path = read_file_full_path[0:read_file_full_path.index('.')] + ".asm"
-
 jump_count = 0          # Global jump_count for jump labels
 function_name = "main"  # Track function names for function labels
 local_var_count = 0     # Track number of local variables for active function
@@ -42,6 +36,15 @@ memory_location = {
 }
 
 ##########################################
+
+def create_bootstrap_string():
+    assembly_string = ""
+    assembly_string += "// create_bootstrap_string\n"
+    assembly_string += "@256" + '\n'
+    assembly_string += "D=A" + '\n'
+    assembly_string += "@SP" + '\n'
+    assembly_string += "M=D" + '\n'
+    return assembly_string
 
 def parser(line):
         commands_list = line.split(' ')
@@ -88,12 +91,14 @@ def code_writer(command, arg1, arg2):
     
 def move_sp_forward():
     assembly_string = ""
+    assembly_string += "// move_sp_forward\n"
     assembly_string += "@SP" + '\n'
     assembly_string += "M=M+1" + '\n'
     return assembly_string
 
 def move_sp_back():
     assembly_string = ""
+    assembly_string += "// move_sp_back\n"
     assembly_string += "@SP" + '\n'
     assembly_string += "M=M-1" + '\n'
     return assembly_string
@@ -102,12 +107,14 @@ def set_m_to_sp():
     # Dereference sp pointer value ie: "M = *sp"
     # Next instruction: "M = x", will store value x at location RAM[M]
     assembly_string = ""
+    assembly_string += "// set_m_to_sp\n"
     assembly_string += "@SP" + '\n'
     assembly_string += "A=M" + '\n'
     return assembly_string
 
 def generate_alc_double_string(alc_code):
     assembly_string = ""
+    assembly_string += "// generate_alc_double_string\n"
     assembly_string += move_sp_back()
     assembly_string += set_m_to_sp()
     assembly_string += "D=M" + '\n'
@@ -119,6 +126,7 @@ def generate_alc_double_string(alc_code):
 
 def generate_alc_single_string(alc_code):
     assembly_string = ""
+    assembly_string += "// generate_alc_single_string\n"
     assembly_string += move_sp_back()
     assembly_string += set_m_to_sp()
     assembly_string += "D=" + alc_code + '\n'
@@ -130,6 +138,7 @@ def generate_alc_single_string(alc_code):
 def generate_comparison_string(alc_code):
     global jump_count
     assembly_string = ""
+    assembly_string += "// generate_comparison_string\n"
     assembly_string += "@SP" + '\n'
     assembly_string += "M=M-1" + '\n'
     assembly_string += "A=M" + '\n'
@@ -162,6 +171,7 @@ def calculate_memory_location(arg1, arg2):
     # Sets D-register to location specified by arg1, arg2
     # Eg "temp 2" will set: D = value of temp 2 location in RAM
     assembly_string = ""
+    assembly_string += "// calculate_memory_location\n"
     if arg1 =="temp":
         assembly_string += "@5" + '\n' # Base memory for temp
         assembly_string += "D=A" + '\n'
@@ -176,7 +186,7 @@ def calculate_memory_location(arg1, arg2):
         assembly_string += "D=A" + '\n'
 
     elif arg1 =="static":
-        assembly_string += "@" + base_file_name + arg2 + '\n'
+        assembly_string += "@" + file_name_no_ext + arg2 + '\n'
         assembly_string += "D=A" + '\n'
 
     else:
@@ -191,6 +201,7 @@ def calculate_memory_location(arg1, arg2):
 
 def restore_values(memory_name):
     assembly_string = ""
+    assembly_string += "// restore_values\n"
     if memory_name == "THAT":   offest = '1' 
     if memory_name == "THIS":   offest = '2'
     if memory_name == "ARG":    offest = '3'
@@ -219,6 +230,7 @@ def restore_values(memory_name):
 
 def generate_push_string(arg1, arg2):
     assembly_string = ""
+    assembly_string += "// generate_push_string\n"
     if arg1 == "constant":
         assembly_string += "@" + arg2 + '\n'
         assembly_string += "D=A" + '\n'
@@ -235,6 +247,7 @@ def generate_push_string(arg1, arg2):
 
 def generate_pop_string(arg1, arg2):
     assembly_string = ""
+    assembly_string += "// generate_pop_string\n"
     #1. Calculate memory location
     assembly_string += calculate_memory_location(arg1, arg2)
     assembly_string += "@R13" + '\n'
@@ -252,6 +265,7 @@ def generate_pop_string(arg1, arg2):
 
 def generate_label_string(arg1):
     assembly_string = ""
+    assembly_string += "// generate_label_string\n"
     assembly_string += '(' + convert_label_name(arg1) + ')' + '\n'
     return assembly_string
 
@@ -259,6 +273,7 @@ def generate_function_string(arg1, arg2):
     # When a function line is executed eg "function SimpleFunction.test 2"
     # Labels function line and sets n local variables to zero
     assembly_string = ""
+    assembly_string += "// generate_function_string\n"
     assembly_string += '(' + arg1 + ')' + '\n'
     local_var_count = int(arg2)
     for i in range(local_var_count):
@@ -269,6 +284,7 @@ def generate_function_string(arg1, arg2):
 
 def generate_return_string(num_args):
     assembly_string = ""
+    assembly_string += "// generate_return_string\n"
     # 1. Save LCL into R13
     assembly_string += "@LCL" + '\n'
     assembly_string += "A=M" + '\n'
@@ -316,6 +332,7 @@ def generate_return_string(num_args):
 
 def generate_ifgoto_string(arg1):
     assembly_string = ""
+    assembly_string += "// generate_ifgoto_string\n"
     label_name = convert_label_name(arg1)
     assembly_string += move_sp_back()
     assembly_string += "@" + label_name + '\n'
@@ -324,6 +341,7 @@ def generate_ifgoto_string(arg1):
 
 def generate_goto_string(arg1):
     assembly_string = ""
+    assembly_string += "// generate_goto_string\n"
     label_name = convert_label_name(arg1)
     assembly_string += "@" + label_name + '\n'
     assembly_string += "0; JMP" + '\n'
@@ -340,17 +358,77 @@ def create_function_name(function_name):
 
 def convert_label_name(label_name):
     label_string = ""
-    label_string += base_file_name + '.' + function_name + '$' + label_name
+    label_string += file_name_no_ext + '.' + function_name + '$' + label_name
     return label_string
 
-with open(read_file_full_path) as read_file:
-    write_file = open(write_file_full_path, "w")
-    for line in read_file:
-        if line != '\n' and line[0] != '/':
-            assembly_string = ""
-            line_no_returnchar = line.strip('\n')
-            command, arg1, arg2 = parser(line_no_returnchar)
-            assembly_string += code_writer(command, arg1, arg2)
-            write_file.write(assembly_string)
+def add_bootstrap_code():
+    assembly_string = ""
+    assembly_string += create_bootstrap_string()
+    write_file_name_inc_ext.write(assembly_string)
 
-write_file.close()
+def get_folder_name():
+    i = -1
+    curr_char = application_argument_supplied[i]
+    while curr_char != '/':
+        i-=1
+        curr_char = application_argument_supplied[i]
+    return application_argument_supplied[i+1:]
+
+def get_directory_path():
+    i = -1
+    curr_char = application_argument_supplied[i]
+    while curr_char != '/':
+        i-=1
+        curr_char = application_argument_supplied[i]
+    return application_argument_supplied[0:i:]
+
+if __name__ == "__main__":
+
+    list_file_names_to_read = []   # .vm files to process.  Name only, no folder path
+    application_argument_supplied = sys.argv[1]
+    is_file_to_read = ".vm" in application_argument_supplied
+
+    if is_file_to_read: # Reading single file
+        directory_path = get_directory_path()    
+        write_file_full_path = application_argument_supplied[0:application_argument_supplied.index('.')] + ".asm"
+        write_file_name_inc_ext = open(write_file_full_path, "w")
+        file_name_inc_ext = os.path.basename(application_argument_supplied)
+        list_file_names_to_read.append(file_name_inc_ext)
+    else: # Reading directory
+        # Get folder name and create write file
+        folder_name = get_folder_name()
+        directory_path = application_argument_supplied
+        write_file_full_path = directory_path + '/' + folder_name + ".asm"
+        write_file_name_inc_ext = open(write_file_full_path, "w")
+        add_bootstrap_code()
+        
+        # Add .vm files to list_files_to_read
+        for file_name_inc_ext in os.listdir(application_argument_supplied):
+            if file_name_inc_ext[-3:] == ".vm":
+                list_file_names_to_read.append(file_name_inc_ext)
+        
+        assert "Sys.vm" in list_file_names_to_read # Check that list contains Sys.vm or throw error
+
+        # Ensure Sys.vm is first file in list_files_to_read
+        for i in range(len(list_file_names_to_read)):
+            if list_file_names_to_read[i] == "Sys.vm":
+                list_file_names_to_read[i] = list_file_names_to_read[0]
+                list_file_names_to_read[0] = "Sys.vm"
+
+    for read_file_name_inc_ext in list_file_names_to_read:
+        # file_name_no_ext = read_file_name[0:read_file_name.index('.')]
+        file_name_no_ext = read_file_name_inc_ext.strip(".vm")
+
+        read_file_name_full_path_inc_ext = directory_path + '/' + read_file_name_inc_ext
+
+        with open(read_file_name_full_path_inc_ext) as read_file:
+            
+            for line in read_file:
+                if line != '\n' and line[0] != '/':
+                    assembly_string = ""
+                    line_no_returnchar = line.strip('\n')
+                    command, arg1, arg2 = parser(line_no_returnchar)
+                    assembly_string += code_writer(command, arg1, arg2)
+                    write_file_name_inc_ext.write(assembly_string)
+
+    write_file_name_inc_ext.close()
