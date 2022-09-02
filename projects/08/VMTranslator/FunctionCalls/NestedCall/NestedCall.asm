@@ -1,3 +1,8 @@
+// create_bootstrap_string
+@256
+D=A
+@SP
+M=D
 // generate_function_string
 (Sys.init)
 // generate_push_string
