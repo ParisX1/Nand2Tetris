@@ -1,8 +1,3 @@
-// create_bootstrap_string
-@256
-D=A
-@SP
-M=D
 // generate_function_string
 (Sys.init)
 // generate_push_string
@@ -56,43 +51,52 @@ D=M
 A=M
 M=D
 // generate_call_string
-// generate_return_address_string
-($ret.1)
-// move_sp_forward
+@Sys.init$ret.1
+D=A
+// set_m_to_sp
 @SP
-M=M+1
+A=M
+M=D
+// Save LCL
 // move_sp_forward
 @SP
 M=M+1
 @LCL
-D=M
+A=M
+D=A
 // set_m_to_sp
 @SP
 A=M
 M=D
+// Save ARG
 // move_sp_forward
 @SP
 M=M+1
-@ARGLCL
-D=M
+@ARG
+A=M
+D=A
 // set_m_to_sp
 @SP
 A=M
 M=D
+// Save THIS
 // move_sp_forward
 @SP
 M=M+1
 @THIS
-D=M
+A=M
+D=A
 // set_m_to_sp
 @SP
 A=M
 M=D
+// Save THAT
 // move_sp_forward
 @SP
 M=M+1
 @THAT
-D=M
+A=M
+D=A
 // set_m_to_sp
 @SP
 A=M
@@ -100,8 +104,24 @@ M=D
 // move_sp_forward
 @SP
 M=M+1
+// Reposition ARG
+@5
+D=A
+@SP
+A=M-D
+D=A
+@ARG
+M=D
+// Reposition LCL
+@SP
+A=M
+D=A
+@LCL
+M=D
+// Jmp to function
 @Sys.main
 0,JMP
+(Sys.init$ret.1)
 // generate_pop_string
 // calculate_memory_location
 @5
@@ -418,43 +438,52 @@ M=D
 @SP
 M=M+1
 // generate_call_string
-// generate_return_address_string
-($ret.2)
-// move_sp_forward
+@Sys.main$ret.2
+D=A
+// set_m_to_sp
 @SP
-M=M+1
+A=M
+M=D
+// Save LCL
 // move_sp_forward
 @SP
 M=M+1
 @LCL
-D=M
+A=M
+D=A
 // set_m_to_sp
 @SP
 A=M
 M=D
+// Save ARG
 // move_sp_forward
 @SP
 M=M+1
-@ARGLCL
-D=M
+@ARG
+A=M
+D=A
 // set_m_to_sp
 @SP
 A=M
 M=D
+// Save THIS
 // move_sp_forward
 @SP
 M=M+1
 @THIS
-D=M
+A=M
+D=A
 // set_m_to_sp
 @SP
 A=M
 M=D
+// Save THAT
 // move_sp_forward
 @SP
 M=M+1
 @THAT
-D=M
+A=M
+D=A
 // set_m_to_sp
 @SP
 A=M
@@ -462,8 +491,24 @@ M=D
 // move_sp_forward
 @SP
 M=M+1
+// Reposition ARG
+@6
+D=A
+@SP
+A=M-D
+D=A
+@ARG
+M=D
+// Reposition LCL
+@SP
+A=M
+D=A
+@LCL
+M=D
+// Jmp to function
 @Sys.add12
 0,JMP
+(Sys.main$ret.2)
 // generate_pop_string
 // calculate_memory_location
 @5
@@ -706,6 +751,9 @@ A=M
 D=A
 @LCL
 M=D
+@R14
+A=M
+0,JMP
 // generate_function_string
 (Sys.add12)
 // generate_push_string
@@ -879,3 +927,6 @@ A=M
 D=A
 @LCL
 M=D
+@R14
+A=M
+0,JMP

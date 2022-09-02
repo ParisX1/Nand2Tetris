@@ -276,6 +276,7 @@ def generate_label_string(arg1):
 def generate_function_string(arg1, arg2):
     # When a function line is executed eg "function SimpleFunction.test 2"
     # Labels function line and sets n local variables to zero
+    global current_function_name
     current_function_name = arg1
     assembly_string = ""
     assembly_string += "// generate_function_string\n"
@@ -290,50 +291,81 @@ def generate_function_string(arg1, arg2):
 def generate_return_address_string():
     global call_count
     call_count += 1
-    assembly_string = ""
-    assembly_string += "// generate_return_address_string\n"
-    assembly_string += '(' + current_function_name + "$ret." + str(call_count) + ')' + '\n'
-    return assembly_string
+    return_address_string =  current_function_name + "$ret." + str(call_count)
+    return_address_string
+    return return_address_string
 
 def generate_call_string(arg1, arg2):
     assembly_string = ""
     assembly_string += "// generate_call_string\n"
     # Create return label
-    assembly_string += generate_return_address_string()
-    assembly_string += move_sp_forward()
+    return_address_string = generate_return_address_string()
+    assembly_string += '@' + return_address_string + '\n'
+    assembly_string += "D=A" + '\n'
+    assembly_string += set_m_to_sp()
+    assembly_string += "M=D" + '\n'
 
     # Save LCL
+    assembly_string += "// Save LCL\n"
     assembly_string += move_sp_forward()
     assembly_string += "@LCL" + '\n'
-    assembly_string += "D=M" + '\n'
+    assembly_string += "A=M" + '\n'
+    assembly_string += "D=A" + '\n'
     assembly_string += set_m_to_sp()
     assembly_string += "M=D" + '\n'
 
     # Save ARG
+    assembly_string += "// Save ARG\n"
     assembly_string += move_sp_forward()
-    assembly_string += "@ARGLCL" + '\n'
-    assembly_string += "D=M" + '\n'
+    assembly_string += "@ARG" + '\n'
+    assembly_string += "A=M" + '\n'
+    assembly_string += "D=A" + '\n'
     assembly_string += set_m_to_sp()
     assembly_string += "M=D" + '\n'
 
     # Save THIS
+    assembly_string += "// Save THIS\n"
     assembly_string += move_sp_forward()
     assembly_string += "@THIS" + '\n'
-    assembly_string += "D=M" + '\n'
+    assembly_string += "A=M" + '\n'
+    assembly_string += "D=A" + '\n'
     assembly_string += set_m_to_sp()
     assembly_string += "M=D" + '\n'
 
     # Save THAT
+    assembly_string += "// Save THAT\n"
     assembly_string += move_sp_forward()
     assembly_string += "@THAT" + '\n'
-    assembly_string += "D=M" + '\n'
+    assembly_string += "A=M" + '\n'
+    assembly_string += "D=A" + '\n'
     assembly_string += set_m_to_sp()
     assembly_string += "M=D" + '\n'
         
-    # Jump to execute called function
+    # Reposition ARG
     assembly_string += move_sp_forward()
+    assembly_string += "// Reposition ARG\n"
+    arg_modifier = 5 + int(arg2)
+    assembly_string += '@' + str(arg_modifier) + '\n'
+    assembly_string += "D=A" + '\n'
+    assembly_string += "@SP" + '\n'
+    assembly_string += "A=M-D" + '\n'
+    assembly_string += "D=A" + '\n'
+    assembly_string += "@ARG" + '\n'
+    assembly_string += "M=D" + '\n'
+
+    # Reposition LCL
+    assembly_string += "// Reposition LCL\n"
+    assembly_string += "@SP" + '\n'
+    assembly_string += "A=M" + '\n'
+    assembly_string += "D=A" + '\n'
+    assembly_string += "@LCL" + '\n'
+    assembly_string += "M=D" + '\n'
+
+    # Jump to execute called function
+    assembly_string += "// Jmp to function\n"
     assembly_string += "@" + arg1 + '\n'
     assembly_string += "0,JMP" + '\n'
+    assembly_string += '(' + return_address_string + ')' '\n'
 
     return assembly_string
 
@@ -382,6 +414,11 @@ def generate_return_string(num_args):
     assembly_string += restore_values("THIS")
     assembly_string += restore_values("ARG")
     assembly_string += restore_values("LCL")
+
+    # Jump to return address
+    assembly_string += "@R14" + '\n'
+    assembly_string += "A=M" + '\n'
+    assembly_string += "0,JMP" + '\n'
     
     return assembly_string
 
@@ -446,7 +483,7 @@ if __name__ == "__main__":
         directory_path = application_argument_supplied
         write_file_full_path = directory_path + '/' + folder_name + ".asm"
         write_file_name_inc_ext = open(write_file_full_path, "w")
-        add_bootstrap_code()
+        #add_bootstrap_code()
         # Add .vm files to list_files_to_read
         for file_name_inc_ext in os.listdir(application_argument_supplied):
             if file_name_inc_ext[-3:] == ".vm":
