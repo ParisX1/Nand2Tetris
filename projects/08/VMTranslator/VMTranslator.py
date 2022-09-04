@@ -42,10 +42,16 @@ memory_location = {
 def create_bootstrap_string():
     assembly_string = ""
     assembly_string += "// create_bootstrap_string\n"
-    assembly_string += "@256" + '\n'
+
+    # Set initial stack pointer value
+    assembly_string += "@256" + '\n'   
     assembly_string += "D=A" + '\n'
     assembly_string += "@SP" + '\n'
     assembly_string += "M=D" + '\n'
+
+    # Call Sys.init
+    assembly_string += code_writer("call", "Sys.init", "0")
+
     return assembly_string
 
 def parser(line):
@@ -483,7 +489,7 @@ if __name__ == "__main__":
         directory_path = application_argument_supplied
         write_file_full_path = directory_path + '/' + folder_name + ".asm"
         write_file_name_inc_ext = open(write_file_full_path, "w")
-        #add_bootstrap_code()
+        add_bootstrap_code()
         # Add .vm files to list_files_to_read
         for file_name_inc_ext in os.listdir(application_argument_supplied):
             if file_name_inc_ext[-3:] == ".vm":
