@@ -456,12 +456,17 @@ def add_bootstrap_code():
     write_file_name_inc_ext.write(assembly_string)
 
 def get_folder_name():
-    i = -1
-    curr_char = application_argument_supplied[i]
-    while curr_char != '/':
-        i-=1
+    # Check if the argument was just the name of the folder with no // path
+    if ('/' or '\\') not in application_argument_supplied:
+        return application_argument_supplied
+    else:
+        i = -1
         curr_char = application_argument_supplied[i]
-    return application_argument_supplied[i+1:]
+        while curr_char != '/' and curr_char != '\\':
+        #while curr_char != '/' and (i*-1 < len(application_argument_supplied)):
+            i-=1
+            curr_char = application_argument_supplied[i]
+        return application_argument_supplied[i+1:].strip(".py") # Strip to remove extension if no args given
 
 def get_directory_path():
     i = -1
@@ -473,7 +478,15 @@ def get_directory_path():
 
 if __name__ == "__main__":
     list_file_names_to_read = []   # .vm files to process.  Name only, no folder path
-    application_argument_supplied = sys.argv[1]
+    argument_list = sys.argv
+    # Check if arguments were supplied
+    if len(argument_list) == 1:
+        application_argument_supplied = sys.argv[0]
+        print("No args given")
+    else:
+        application_argument_supplied = sys.argv[1]
+        print("Argument given")
+    # Set reading files or folders
     is_file_to_read = ".vm" in application_argument_supplied
     
     if is_file_to_read: # Reading single file
@@ -485,13 +498,16 @@ if __name__ == "__main__":
    
     else: # Reading directory
         # Get folder name and create write file
+        print("Args: ", application_argument_supplied)
         folder_name = get_folder_name()
         directory_path = application_argument_supplied
+        # directory_path = application_argument_supplied.strip(os.path.basename(application_argument_supplied))
         write_file_full_path = directory_path + '/' + folder_name + ".asm"
+        #write_file_full_path = directory_path + '\\' + folder_name + ".asm"
         write_file_name_inc_ext = open(write_file_full_path, "w")
         add_bootstrap_code()
         # Add .vm files to list_files_to_read
-        for file_name_inc_ext in os.listdir(application_argument_supplied):
+        for file_name_inc_ext in os.listdir(directory_path):
             if file_name_inc_ext[-3:] == ".vm":
                 list_file_names_to_read.append(file_name_inc_ext)
         assert "Sys.vm" in list_file_names_to_read # Check that list contains Sys.vm or throw error
