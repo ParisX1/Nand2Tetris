@@ -1,5 +1,5 @@
 function Game.new 0
-push constant 9
+push constant 10
 call Memory.alloc 1
 pop pointer 0
 push constant 0
@@ -7,55 +7,109 @@ push constant 0
 push constant 16
 call Person.new 3
 pop this 0
+push constant 5
+pop this 8
+push this 8
+call Array.new 1
+pop this 9
+push constant 0
+push this 9
+add
 push constant 100
 push constant 30
 push constant 16
 call Money.new 3
-pop this 2
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push constant 1
+push this 9
+add
 push constant 200
 push constant 200
 push constant 16
 call Money.new 3
-pop this 3
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push constant 2
+push this 9
+add
 push constant 300
 push constant 55
 push constant 16
 call Money.new 3
-pop this 4
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push constant 3
+push this 9
+add
 push constant 400
 push constant 150
 push constant 16
 call Money.new 3
-pop this 5
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push constant 4
+push this 9
+add
 push constant 450
 push constant 25
 push constant 16
 call Money.new 3
-pop this 6
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push constant 0
+push this 9
+add
+pop pointer 1
+push that 0
+pop this 1
 push constant 0
 pop this 7
 push pointer 0
 return
-function Game.dispose 0
+function Game.dispose 1
 push argument 0
 pop pointer 0
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push this 9
+add
+pop pointer 1
+push that 0
+push constant 0
+eq
+not
+not
+if-goto WHILE_END0
+push constant 0
+push this 9
+add
+pop pointer 1
+push that 0
+pop this 1
+push this 1
+call Money.dispose 1
+pop temp 0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
 push this 0
 call Person.dispose 1
-pop temp 0
-push this 2
-call Money.dispose 1
-pop temp 0
-push this 3
-call Money.dispose 1
-pop temp 0
-push this 4
-call Money.dispose 1
-pop temp 0
-push this 5
-call Money.dispose 1
-pop temp 0
-push this 6
-call Money.dispose 1
 pop temp 0
 push pointer 0
 call Memory.deAlloc 1
@@ -115,26 +169,6 @@ push argument 0
 pop pointer 0
 push constant 0
 pop local 1
-push constant 1
-call Array.new 1
-pop this 8
-push constant 0
-push this 8
-add
-push this 2
-pop temp 0
-pop pointer 1
-push temp 0
-pop that 0
-push constant 0
-push this 8
-add
-pop pointer 1
-push that 0
-pop this 1
-push this 1
-call Money.erase 1
-pop temp 0
 label WHILE_EXP0
 push local 1
 not

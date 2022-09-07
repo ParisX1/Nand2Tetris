@@ -1,5 +1,5 @@
 function Money.new 0
-push constant 6
+push constant 7
 call Memory.alloc 1
 pop pointer 0
 push argument 0
@@ -15,6 +15,9 @@ call Money.setLocation 1
 pop this 3
 push constant 0
 pop this 5
+push constant 0
+not
+pop this 6
 push pointer 0
 call Money.draw 1
 pop temp 0
@@ -164,6 +167,8 @@ push this 4
 push this 3
 add
 pop this 5
+push constant 0
+pop this 6
 push this 5
 push constant 0
 add

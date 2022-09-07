@@ -2,27 +2,49 @@ class Game {
    field Person person; 
    field Money currentMoneyObject, money01, money02, money03, money04, money05;
    field int direction; // 0=none, 1=up, 2=down, 3=left, 4=right
+   field int moneyArraySize; // Number of money objects to store in moneyArray
    field Array moneyArray;
 
    constructor Game new() {
       let person = Person.new(0, 0, 16); // x, y, size
-      let money01 = Money.new(100,30,16); 
-      let money02 = Money.new(200,200,16); 
-      let money03 = Money.new(300,55,16); 
-      let money04 = Money.new(400,150,16); 
-      let money05 = Money.new(450,25,16); 
+      let moneyArraySize = 5;
+      let moneyArray = Array.new(moneyArraySize);
+      
+      // Load new money objects into moneyArray
+      let moneyArray[0] = Money.new(100,30,16);
+      let moneyArray[1] = Money.new(200,200,16);
+      let moneyArray[2] = Money.new(300,55,16); 
+      let moneyArray[3] = Money.new(400,150,16); 
+      let moneyArray[4] = Money.new(450,25,16);
+      let currentMoneyObject = moneyArray[0];
+      
+      //do currentMoneyObject.erase();
+      //let money01 = Money.new(100,30,16); 
+      //let money02 = Money.new(200,200,16); 
+      //let money03 = Money.new(300,55,16); 
+      //let money04 = Money.new(400,150,16); 
+      //let money05 = Money.new(450,25,16); 
 
       let direction = 0;  // Initial state is no movement
       return this;
    }
 
    method void dispose() {
+      // Deallocate memory
+      var int i;
+      let i = 0;
+      // while (~(key = 0)) {
+      while (~(moneyArray[i] = null)){
+         let currentMoneyObject = moneyArray[0];
+         do currentMoneyObject.dispose();
+         let i = i + 1;
+      }
       do person.dispose();
-      do money01.dispose();
-      do money02.dispose();
-      do money03.dispose();
-      do money04.dispose();
-      do money05.dispose();
+      //do money01.dispose();
+      //do money02.dispose();
+      //do money03.dispose();
+      //do money04.dispose();
+      //do money05.dispose();
       do Memory.deAlloc(this);
       return;
    }
@@ -36,25 +58,18 @@ class Game {
       return;
    }
 
-   /** Runs the game: handles the user's inputs and moves the person accordingly */
    method void run() {
-      var char key;  // the key currently pressed by the user
+      var char key;  // Currently key pressed by user
       var boolean exit;
       let exit = false;
 
-      // ### TESTING PUTTING OBJECTS IN AARAYS ###
-      let moneyArray = Array.new(1);
-      let moneyArray[0] = money01;
-      let currentMoneyObject = moneyArray[0];
-      do currentMoneyObject.erase();
-      
       while (~exit) {
          // waits for a key to be pressed
          while (key = 0) {
             let key = Keyboard.keyPressed();
             do movePerson();
          }
-         if (key = 81)  { let exit = true; }     // q key
+         if (key = 81)  { let exit = true; }     // q 
          if (key = 131) { let direction = 1; }   // up arrow
          if (key = 133) { let direction = 2; }   // down arrow
          if (key = 130) { let direction = 3; }   // left arrow
@@ -65,7 +80,7 @@ class Game {
             let key = Keyboard.keyPressed();
             do movePerson();
          }
-     } // while
+     } 
      return;
    }
 }

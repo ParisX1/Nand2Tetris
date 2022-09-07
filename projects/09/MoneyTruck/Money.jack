@@ -4,6 +4,7 @@ class Money {
     field int location; // tracks position on screen
     field int baseScreenAddress;
     field int memAddress;
+    field boolean objectActive;
     //field int memAddress;
  
     constructor Money new(int Ax, int Ay, int Asize) {
@@ -13,6 +14,7 @@ class Money {
        let baseScreenAddress = 16384;
        let location = setLocation();
        let memAddress = 0;
+       let objectActive = true;
        do draw(); // Set initial position
        return this;
     }
@@ -55,6 +57,7 @@ class Money {
        // Remove object from screen
        do setLocation();
        let memAddress = baseScreenAddress + location;
+       let objectActive = false;
        do Memory.poke(memAddress + 0, 0);
        do Memory.poke(memAddress + 32, 0);
        do Memory.poke(memAddress + 64, 0);
