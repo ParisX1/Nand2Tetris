@@ -1,15 +1,27 @@
 class Game {
    field Person person; 
+   field Money money01, money02, money03, money04, money05;
    field int direction; // 0=none, 1=up, 2=down, 3=left, 4=right
 
    constructor Game new() {
       let person = Person.new(0, 0, 16); // x, y, size
-      let direction = 0;  // initial state is no movement
+      let money01 = Money.new(100,30,16); 
+      let money02 = Money.new(200,200,16); 
+      let money03 = Money.new(300,55,16); 
+      let money04 = Money.new(400,150,16); 
+      let money05 = Money.new(450,25,16); 
+
+      let direction = 0;  // Initial state is no movement
       return this;
    }
 
    method void dispose() {
       do person.dispose();
+      do money01.dispose();
+      do money02.dispose();
+      do money03.dispose();
+      do money04.dispose();
+      do money05.dispose();
       do Memory.deAlloc(this);
       return;
    }
