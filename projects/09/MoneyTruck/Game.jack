@@ -1,0 +1,55 @@
+class Game {
+   field Person person; 
+   field int direction; // 0=none, 1=up, 2=down, 3=left, 4=right
+
+   constructor Game new() {
+      let person = Person.new(0, 0, 16); // x, y, size
+      let direction = 0;  // initial state is no movement
+      return this;
+   }
+
+   method void dispose() {
+      do person.dispose();
+      do Memory.deAlloc(this);
+      return;
+   }
+
+   method void movePerson() {
+      if (direction = 1) { do person.moveUp(); }
+      if (direction = 2) { do person.moveDown(); }
+      if (direction = 3) { do person.moveLeft(); }
+      if (direction = 4) { do person.moveRight(); }
+      do Sys.wait(5);  // delays the next movement
+      return;
+   }
+
+   /** Runs the game: handles the user's inputs and moves the person accordingly */
+   method void run() {
+      var char key;  // the key currently pressed by the user
+      var boolean exit;
+      let exit = false;
+      
+      while (~exit) {
+         // waits for a key to be pressed
+         while (key = 0) {
+            let key = Keyboard.keyPressed();
+            do movePerson();
+         }
+         if (key = 81)  { let exit = true; }     // q key
+         if (key = 131) { let direction = 1; }   // up arrow
+         if (key = 133) { let direction = 2; }   // down arrow
+         if (key = 130) { let direction = 3; }   // left arrow
+         if (key = 132) { let direction = 4; }   // right arrow
+
+         // waits for the key to be released
+         while (~(key = 0)) {
+            let key = Keyboard.keyPressed();
+            do movePerson();
+         }
+     } // while
+     return;
+   }
+}
+
+
+
