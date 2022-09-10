@@ -10,7 +10,10 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": ["ExpressionLessSquare/SquareGame.jack"],
+            "args": ["Tests"],
+            //"args": ["Tests/SquareGame.jack"],
+            //"args": ["ExpressionLessSquare/Main.jack"],
+            //"args": ["ExpressionLessSquare/SquareGame.jack"],
             "justMyCode": true
         }
     ]
