@@ -8,5 +8,6 @@ symbol_replacement = {'<':"&lt;",
                       '"':"&quot;",
                       '&':"&amp;"
                      }
+tokens_list = []
 multiline_comment = False
 is_debug_mode = False

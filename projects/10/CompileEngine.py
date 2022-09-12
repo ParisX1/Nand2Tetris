@@ -23,11 +23,15 @@ def get_token_contents(token):
 
 ###############################
 
+# Class declarations
+
 def compileClass():
     pass
 
 def compileClassVarDec():
     pass
+
+# Functions and Methods
 
 def compileSubroutine():
     pass
@@ -38,11 +42,22 @@ def compileParameterList():
 def compileSubroutineBody():
     pass
 
+# Declare Variables
+
 def compileVarDec():
     pass
 
+# Statement Types
+
 def compileStatements():
     pass
+    # while there are more statements:
+    # recurse into the next 'expression?'
+
+    if token_contents == "if":
+        compileIf()    
+
+    # 'eat?' the end things so you come back into the loop and will go again if there's another statement
 
 def compileLet():
     pass
@@ -59,8 +74,7 @@ def compileDo():
 def compileReturn():
     pass
 
-def compileReturn():
-    pass
+# Helper Functions
 
 def compileExpression():
     pass

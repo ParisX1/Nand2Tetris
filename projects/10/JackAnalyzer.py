@@ -52,6 +52,15 @@ if __name__ == "__main__":
     token_filename_ext = "Tokens"
     compile_filename_ext = "Complied"
     
+    '''
+    Change this so we create the token array for each file
+    Then once we've read the file, created the token file output (and so
+    the token array is complete), we can then process the parser.
+    So instead of reading all the files, then processing the parser,
+    we each one file, parse that file, then clear the token array
+    and run the tokeniser on the next file, and so on.
+    '''
+
     # 1. Create token files
     create_file_list()
     for file_to_read in list_file_names_to_read:
@@ -69,7 +78,7 @@ if __name__ == "__main__":
 
     # 2. Parse tokens
     for file_to_read in list_token_file_names:
-        file_to_write = file_to_read.replace(token_filename_ext,"")
+        file_to_write = file_to_read.replace(token_filename_ext, "")
         write_file_object = open_write_file(file_to_write, ".xml", ".xml", compile_filename_ext)
         with open(file_to_read, 'r') as file_read_object:
             for line in file_read_object:
