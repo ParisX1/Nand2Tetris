@@ -50,6 +50,7 @@ if __name__ == "__main__":
     list_file_names_to_read = []   
     list_token_file_names = []
     token_filename_ext = "Tokens"
+    compile_filename_ext = "Complied"
     
     # 1. Create token files
     create_file_list()
@@ -66,9 +67,12 @@ if __name__ == "__main__":
         write_file_object.write("</tokens>" + '\n')
         write_file_object.close()
 
-        # 2. Parse tokens
-        for file_to_read in list_token_file_names:
-            file_to_read = file_to_read.replace(token_filename_ext,"")
-            write_file_object = open_write_file(file_to_read, ".xml", ".xml", "Complied")
-            pass
+    # 2. Parse tokens
+    for file_to_read in list_token_file_names:
+        file_to_write = file_to_read.replace(token_filename_ext,"")
+        write_file_object = open_write_file(file_to_write, ".xml", ".xml", compile_filename_ext)
+        with open(file_to_read, 'r') as file_read_object:
+            for line in file_read_object:
+                parser(line, write_file_object)
+        write_file_object.close()
     

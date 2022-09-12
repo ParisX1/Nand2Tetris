@@ -9,4 +9,4 @@ symbol_replacement = {'<':"&lt;",
                       '&':"&amp;"
                      }
 multiline_comment = False
-is_debug_mode = True
+is_debug_mode = False
