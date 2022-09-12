@@ -6,13 +6,20 @@ keyword =   ["class", "constructor", "function", "method", "field", "static", "v
             "let", "do", "if", "else", "while", "return"]
 symbol =    ['{', '}', '(', ')', '[', ']', '.', ',', ';', '+', '-', '*', '/', '&', 
             '|', '<', '>', '=', '~']
+symbol_replacement = {'<':"&lt;", 
+                      '>':"&gt;",
+                      '"':"&quot;",
+                      '&':"&amp;",
+                     }
 multiline_comment = False
+is_debug_mode = False
 
 def tokenizer(input_text):
-    print(input_text)
+    global is_debug_mode 
+    if is_debug_mode: print(input_text)
     input_text_clean = clean_line_text(input_text)
     line_list = create_line_list(input_text_clean)
-    print(line_list)
+    if is_debug_mode: print(line_list)
     for item in line_list:
         if item in keyword:
             create_token(item)
@@ -22,7 +29,6 @@ def tokenizer(input_text):
             i = 0
             while i < len(item):
                 token_string = item[0:i+1]
-                #print(token_string)
                 found = False
                 if item[i] in symbol:
                     if i > 0: # Process prior string if not first char
@@ -51,30 +57,33 @@ def create_line_list(text):
     space = ' '
     quote = '"'
     i = 0
+    j = 1
+    
     while text[i] == ' ':
         i = i + 1
     j = i + 1
+    
     while j < text_len:
-        if text[j] == quote: # If you find a quote first, add everything prior to list
+        if text[j] == quote: 
+            # If you find a quote first, add everything prior to list
             line_list.append(text[i:j])
             i = j
             j = j + 1
-
         if text[i] == quote:
+            # If inside a quote, process the whole quote
             while text[j] != quote:
                 j=j+1
             line_list.append(text[i:j+1])
             i = j + 1
             j = i + 1
-
         elif text[j] == space:
-            line_list.append(text[i:j])
+            # If you find a space, add everything into the list
+            line_list.append(text[i:j].strip())
             i = j + 1
             j = i + 1
-
         else:
             j = j + 1
-    line_list.append(text[i:j])
+    line_list.append(text[i:j].strip())
 
     # Check for empty strings
     i = 0
@@ -83,13 +92,15 @@ def create_line_list(text):
             del line_list[i]
             i = 0
         i = i + 1 
-
     return line_list
 
 def create_token(token_string):
     if token_string in keyword:
         line_to_write = token_string_creator(token_string, "keyword")
     elif token_string in symbol:
+        if token_string in symbol_replacement:
+            # Check if symbol needs replacement
+            token_string = symbol_replacement[token_string]
         line_to_write = token_string_creator(token_string, "symbol")
     elif token_string.isdigit(): 
         line_to_write = token_string_creator(token_string, "integerConstant")
@@ -112,7 +123,7 @@ def line_has_code(line):
     if ("/**" in line) or (multiline_comment == True): 
         if "*/" not in line:
             multiline_comment = True
-        elif (multiline_comment == True) and "*\\" in line:
+        elif (multiline_comment == True) and "*/" in line:
             multiline_comment = False    
         return False
 
@@ -148,7 +159,7 @@ if __name__ == "__main__":
     list_file_names_to_read = []   
     create_file_list()
     for file_to_read in list_file_names_to_read:
-        print(file_to_read)
+        if is_debug_mode: print(file_to_read)
         write_file_object = open_write_file(file_to_read)
         write_file_object.write("<tokens>" + '\n')
         multiline_comment = False
