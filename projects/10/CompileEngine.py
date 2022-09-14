@@ -1,10 +1,15 @@
 from Globals import *
 
+
 def parser(token, write_file_object):
-    token_type = get_token_type(token)
-    token_contents = get_token_contents(token)
-    print(token_type)
-    print(token_contents)
+    current_token_num = 1
+    token_list_len = len(tokens_list)    
+    while current_token_num < token_list_len:
+        token_type = get_token_type(token)
+        token_contents = get_token_contents(token)
+        if is_debug_mode: print("Token type: " + token_type)
+        if is_debug_mode: print("Token contents: " + token_contents)
+        current_token_num += 1
 
 def write_to_file(line_to_write, write_file_object):
     write_file_object.write(line_to_write + '\n')

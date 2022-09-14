@@ -10,4 +10,4 @@ symbol_replacement = {'<':"&lt;",
                      }
 tokens_list = []
 multiline_comment = False
-is_debug_mode = False
+is_debug_mode = True
