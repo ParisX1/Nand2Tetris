@@ -8,6 +8,6 @@ symbol_replacement = {'<':"&lt;",
                       '"':"&quot;",
                       '&':"&amp;"
                      }
-tokens_list = []
+token_list = []
 multiline_comment = False
-is_debug_mode = True
+is_debug_mode = False

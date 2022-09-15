@@ -1,24 +1,42 @@
 from Globals import *
+token_num = 0
+token_list_len = len(token_list) -1 # Ignore last token ("</tokens")
 
+def parser(write_file_object):
+    global token_num
+    global token_list_len
+    token_list_len = len(token_list) -1 #Ignore last token ("</tokens")
+    token_full = token_list[token_num]
+    while token_num < token_list_len:
+        if is_debug_mode: print("Token: " + token_full)
+        
+        token_type = get_token_type(token_full)
+        if token_type == "keyword": parse_keyword(token_full, write_file_object)
+        
+        token_full, token_type, token_content = advance_token()
 
-def parser(token, write_file_object):
-    current_token_num = 1
-    token_list_len = len(tokens_list)    
-    while current_token_num < token_list_len:
-        token_type = get_token_type(token)
-        token_contents = get_token_contents(token)
-        if is_debug_mode: print("Token type: " + token_type)
-        if is_debug_mode: print("Token contents: " + token_contents)
-        current_token_num += 1
+def advance_token():
+    global token_num
+    global token_list_len
+    if token_num < token_list_len: 
+        token_num += 1 
+    token_full = token_list[token_num]
+    token_type = get_token_type(token_full)
+    token_content = get_token_content(token_full)
+    return token_full, token_type, token_content
 
-def write_to_file(line_to_write, write_file_object):
+def parse_keyword(token_full, write_file_object):
+    token_content = get_token_content(token_full)
+    if token_content == 'class': compile_class(token_full, write_file_object)
+
+def write_text_to_file(line_to_write, write_file_object):
     write_file_object.write(line_to_write + '\n')
 
 def get_token_type(token):
     end_index = token.index(">")
     return token[1:end_index]
 
-def get_token_contents(token):
+def get_token_content(token):
     if (">" in token) and ("</" in token):
         begin_index = token.index(">")+1
         end_index = token.index("</") 
@@ -26,35 +44,54 @@ def get_token_contents(token):
     else:
         return ""
 
-###############################
+#########################################################################
 
 # Class declarations
 
-def compileClass():
-    pass
+def compile_class(token_full, write_file_object):
+    write_text_to_file(token_full, write_file_object)       # Write <class>
+    token_full, token_type, token_content = advance_token() # Move forward
+    write_text_to_file(token_full, write_file_object)       # Write class name
+    token_full, token_type, token_content = advance_token() # Move forward
+    write_text_to_file(token_full, write_file_object)       # Write '{'
+    token_full, token_type, token_content = advance_token() # Move forward
 
-def compileClassVarDec():
-    pass
+    # Check for variable decs
+    if (token_content == 'field') or (token_content == 'field'):
+        # process var dec
+        compile_class_var_dec(write_file_object)
+        pass
+
+    elif token_type == 'function':
+        # process method call
+        pass
+
+def compile_class_var_dec(write_file_object):
+    write_text_to_file("<classVarDec>", write_file_object)
+
+    # ...
+
+    write_text_to_file("</classVarDec>", write_file_object)
 
 # Functions and Methods
 
-def compileSubroutine():
+def compile_subroutine():
     pass
 
-def compileParameterList():
+def compile_parameter_list():
     pass
 
-def compileSubroutineBody():
+def compile_subroutine_body():
     pass
 
 # Declare Variables
 
-def compileVarDec():
+def compile_var_dec():
     pass
 
 # Statement Types
 
-def compileStatements():
+def compile_statements():
     pass
     # while there are more statements:
     # recurse into the next 'expression?'
@@ -64,28 +101,28 @@ def compileStatements():
 
     # 'eat?' the end things so you come back into the loop and will go again if there's another statement
 
-def compileLet():
+def compile_let():
     pass
 
-def compileIf():
+def compile_if():
     pass
 
-def compileWhile():
+def compile_while():
     pass
 
-def compileDo():
+def compile_do():
     pass
 
-def compileReturn():
+def compile_return():
     pass
 
 # Helper Functions
 
-def compileExpression():
+def compile_expression():
     pass
 
-def compileTerm():
+def compile_term():
     pass
 
-def compileExpressionList():
+def compile_expression_list():
     pass

@@ -96,7 +96,7 @@ def create_token(token_string, write_file_object):
     else:
         line_to_write = token_string_creator(token_string, "identifier")
     write_to_file(line_to_write, write_file_object)
-    tokens_list.append(line_to_write)
+    token_list.append(line_to_write)
 
 def write_to_file(line_to_write, write_file_object):
     write_file_object.write(line_to_write + '\n')

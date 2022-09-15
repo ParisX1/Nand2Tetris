@@ -77,5 +77,6 @@ if __name__ == "__main__":
         # 2. Parse tokens -> Create file of analysed tokens eg (Main.xml)
         file_to_write = file_to_read
         write_file_object = open_write_file(file_to_write, ".jack", ".xml", compile_filename_ext)
-        parser(line, write_file_object)
+        parser(write_file_object)
         write_file_object.close()
+        token_list.clear()
