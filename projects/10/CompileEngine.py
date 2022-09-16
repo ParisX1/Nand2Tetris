@@ -10,9 +10,8 @@ def parser(write_file_object):
     while token_num < token_list_len:
         token_full = get_token_full()
         if is_debug_mode: print("Token: " + token_full)
-        token_type = get_token_type(token_full)
-        if token_type == "keyword": parse_keyword(token_full, write_file_object)
-        advance_token()
+        parse_token(token_full, write_file_object)
+        advance_token() # !!! IS THIS NOT NEEDED??? !!! 
 
 def advance_token():
     global token_num
@@ -20,7 +19,7 @@ def advance_token():
     if token_num < token_list_len: 
         token_num += 1 
 
-def parse_keyword(token_full, write_file_object):
+def parse_token(token_full, write_file_object):
     token_content = get_token_content(token_full)
     if token_content == 'class': compile_class(token_full, write_file_object)
 
@@ -47,7 +46,8 @@ def get_token_content(token):
 
 # Class declarations
 def compile_class(token_full, write_file_object):
-
+    write_text_to_file("<class>", write_file_object)
+    
     # Class of File
     add_tokens_upto_delim(token_full, '{', write_file_object)
     
@@ -68,10 +68,14 @@ def compile_class(token_full, write_file_object):
     if is_subroutine_dec(token_content):
         write_text_to_file("<subroutineDec>", write_file_object)
         while is_subroutine_dec(token_content):
-            compile_class_var_dec(token_full, write_file_object)
+            compile_subroutine(token_full, write_file_object)
             token_full = get_token_full()
             token_content = get_token_content(token_full)
         write_text_to_file("</subroutineDec>", write_file_object)
+
+    write_text_to_file("</class>", write_file_object)
+
+############################ ↓ HELPER FUNCTIONS ↓ ############################
 
 def add_tokens_upto_delim(token_full, delimiter, write_file_object):
     token_content = get_token_content(token_full)
@@ -84,7 +88,7 @@ def add_tokens_upto_delim(token_full, delimiter, write_file_object):
     advance_token()
 
 def is_var_dec(token_content):
-    if (token_content == 'field') or (token_content == 'static'):
+    if (token_content == 'var') or (token_content == 'field') or (token_content == 'static'):
         return True
     else:
         return False
@@ -96,48 +100,96 @@ def is_subroutine_dec(token_content):
     else:
         return False
 
+def is_statement(token_content):
+    if (token_content == 'let') or (token_content == 'if') or (token_content == 'while') \
+        or (token_content == 'do') or (token_content == 'return'):
+        return True
+    else:
+        return False
+
+############################ ↓ COMPILERS ↓ ############################
+
 def compile_class_var_dec(token_full, write_file_object):
     add_tokens_upto_delim(token_full, ';', write_file_object)
 
 # Functions and Methods
 
-def compile_subroutine():
+def compile_subroutine(token_full, write_file_object):
+    add_tokens_upto_delim(token_full, '(', write_file_object)   # Subroutine definition
+    token_full = get_token_full()
+    compile_parameter_list(token_full, write_file_object)       # Subroutine parameters
+    token_full = get_token_full()
+    add_tokens_upto_delim(token_full, ')', write_file_object)   # Subroutine definition - end
+    token_full = get_token_full()
+    compile_subroutine_body(token_full, write_file_object)       # Subroutine body
+    #token_full = get_token_full()
+
+def compile_parameter_list(token_full, write_file_object):
+    write_text_to_file("<parameterList>", write_file_object)
+    # ...
+    write_text_to_file("</parameterList>", write_file_object)
+    
+
+def compile_subroutine_body(token_full, write_file_object):
+    write_text_to_file("<subroutineBody>", write_file_object)
+    add_tokens_upto_delim(token_full, '{', write_file_object)
+    token_full = get_token_full()
+    token_content = get_token_content(token_full)
+    
+    # Variable Declarations
+    while is_var_dec(token_content):
+        compile_var_dec(token_full, write_file_object)
+        token_full = get_token_full()
+        token_content = get_token_content(token_full)
+
+    # Expressions - Setting Variables
+    while is_statement(token_content):
+        compile_statements(token_full, write_file_object)
+        token_full = get_token_full()
+        token_content = get_token_content(token_full)
+
+
+    # Variable Statements
+    while is_subroutine_dec(token_content):
+        compile_var_dec(token_full, write_file_object)
+        token_full = get_token_full()
+        token_content = get_token_content(token_full)
+
+    add_tokens_upto_delim(token_full, '}', write_file_object)
+    write_text_to_file("</subroutineBody>", write_file_object)
+
+def compile_var_dec(token_full, write_file_object):
+    write_text_to_file("<varDec>", write_file_object)
+    add_tokens_upto_delim(token_full, ';', write_file_object)
+    write_text_to_file("</varDec>", write_file_object)
+
+def compile_statements(token_full, write_file_object):
+    token_content = get_token_content(token_full)
+    if token_content == 'let':
+        compile_let(token_full, write_file_object)
+    elif token_content == 'if': 
+         compile_if(token_full, write_file_object)    
+    elif token_content == 'while':
+        compile_while(token_full, write_file_object)    
+    elif token_content == 'do':
+        compile_do(token_full, write_file_object)
+    elif token_content == 'return':
+        compile_return(token_full, write_file_object)
+
+def compile_let(token_full, write_file_object):
     pass
 
-def compile_parameter_list():
+def compile_if(token_full, write_file_object):
     pass
 
-def compile_subroutine_body():
+def compile_while(token_full, write_file_object):
     pass
 
-# Declare Variables
-
-def compile_var_dec():
+def compile_do(token_full, write_file_object):
     pass
 
-# Statement Types
-
-def compile_statements():
+def compile_return(token_full, write_file_object):
     pass
-    # if token_contents == "if":
-    #     compileIf()    
-
-def compile_let():
-    pass
-
-def compile_if():
-    pass
-
-def compile_while():
-    pass
-
-def compile_do():
-    pass
-
-def compile_return():
-    pass
-
-# Helper Functions
 
 def compile_expression():
     pass
@@ -147,3 +199,15 @@ def compile_term():
 
 def compile_expression_list():
     pass
+
+'''
+#######################################################################
+############################   ↓ TO DO ↓   ############################
+
+x Currently up to completing all the "compile_statements" ie let, if, do
+etc.  Fill these in, can basically copy the code from one to the other.
+
+Then trace back where this was called from and that is completing most
+of the functions!
+
+'''
