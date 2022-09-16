@@ -8,22 +8,17 @@ def parser(write_file_object):
     token_list_len = len(token_list) -1 #Ignore last token ("</tokens")
     token_full = token_list[token_num]
     while token_num < token_list_len:
+        token_full = get_token_full()
         if is_debug_mode: print("Token: " + token_full)
-        
         token_type = get_token_type(token_full)
         if token_type == "keyword": parse_keyword(token_full, write_file_object)
-        
-        token_full, token_type, token_content = advance_token()
+        advance_token()
 
 def advance_token():
     global token_num
     global token_list_len
     if token_num < token_list_len: 
         token_num += 1 
-    token_full = token_list[token_num]
-    token_type = get_token_type(token_full)
-    token_content = get_token_content(token_full)
-    return token_full, token_type, token_content
 
 def parse_keyword(token_full, write_file_object):
     token_content = get_token_content(token_full)
@@ -31,6 +26,10 @@ def parse_keyword(token_full, write_file_object):
 
 def write_text_to_file(line_to_write, write_file_object):
     write_file_object.write(line_to_write + '\n')
+
+def get_token_full():
+    global token_num
+    return token_list[token_num]
 
 def get_token_type(token):
     end_index = token.index(">")
@@ -47,31 +46,58 @@ def get_token_content(token):
 #########################################################################
 
 # Class declarations
-
 def compile_class(token_full, write_file_object):
-    write_text_to_file(token_full, write_file_object)       # Write <class>
-    token_full, token_type, token_content = advance_token() # Move forward
-    write_text_to_file(token_full, write_file_object)       # Write class name
-    token_full, token_type, token_content = advance_token() # Move forward
-    write_text_to_file(token_full, write_file_object)       # Write '{'
-    token_full, token_type, token_content = advance_token() # Move forward
 
-    # Check for variable decs
-    if (token_content == 'field') or (token_content == 'field'):
-        # process var dec
-        compile_class_var_dec(write_file_object)
-        pass
+    # Class of File
+    add_tokens_upto_delim(token_full, '{', write_file_object)
+    
+    # Class Variables
+    token_full = get_token_full()
+    token_content = get_token_content(token_full)
+    if is_var_dec(token_content):
+        write_text_to_file("<classVarDec>", write_file_object)
+        while is_var_dec(token_content):
+            compile_class_var_dec(token_full, write_file_object)
+            token_full = get_token_full()
+            token_content = get_token_content(token_full)
+        write_text_to_file("</classVarDec>", write_file_object)
+    
+    # Class Functions
+    token_full = get_token_full()
+    token_content = get_token_content(token_full)
+    if is_subroutine_dec(token_content):
+        write_text_to_file("<subroutineDec>", write_file_object)
+        while is_subroutine_dec(token_content):
+            compile_class_var_dec(token_full, write_file_object)
+            token_full = get_token_full()
+            token_content = get_token_content(token_full)
+        write_text_to_file("</subroutineDec>", write_file_object)
 
-    elif token_type == 'function':
-        # process method call
-        pass
+def add_tokens_upto_delim(token_full, delimiter, write_file_object):
+    token_content = get_token_content(token_full)
+    while token_content != delimiter:
+        write_text_to_file(token_full, write_file_object)       
+        advance_token()
+        token_full = get_token_full()
+        token_content = get_token_content(token_full)
+    write_text_to_file(token_full, write_file_object)       
+    advance_token()
 
-def compile_class_var_dec(write_file_object):
-    write_text_to_file("<classVarDec>", write_file_object)
+def is_var_dec(token_content):
+    if (token_content == 'field') or (token_content == 'static'):
+        return True
+    else:
+        return False
 
-    # ...
+def is_subroutine_dec(token_content):
+    if (token_content == 'constructor') or (token_content == 'function') \
+        or (token_content == 'method'):
+        return True
+    else:
+        return False
 
-    write_text_to_file("</classVarDec>", write_file_object)
+def compile_class_var_dec(token_full, write_file_object):
+    add_tokens_upto_delim(token_full, ';', write_file_object)
 
 # Functions and Methods
 
@@ -93,13 +119,8 @@ def compile_var_dec():
 
 def compile_statements():
     pass
-    # while there are more statements:
-    # recurse into the next 'expression?'
-
-    if token_contents == "if":
-        compileIf()    
-
-    # 'eat?' the end things so you come back into the loop and will go again if there's another statement
+    # if token_contents == "if":
+    #     compileIf()    
 
 def compile_let():
     pass
