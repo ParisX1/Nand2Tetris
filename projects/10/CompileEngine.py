@@ -1,27 +1,29 @@
 from Globals import *
 token_num = 0
-token_list_len = len(token_list) -1 # Ignore last token ("</tokens")
+token_list_len = len(token_list) # Ignore last token ("</tokens")
 
 def parser(write_file_object):
     global token_num
     global token_list_len
-    token_list_len = len(token_list) -1 #Ignore last token ("</tokens")
+    token_list_len = len(token_list) 
     token_full = token_list[token_num]
-    while token_num < token_list_len:
-        token_full = get_token_full()
-        if is_debug_mode: print("Token: " + token_full)
-        parse_token(token_full, write_file_object)
-        advance_token() # !!! IS THIS NOT NEEDED??? !!! 
+    compile_class(token_full, write_file_object)
+
+    # while token_num < token_list_len:
+    #     token_full = get_token_full()
+    #     if is_debug_mode: print("Token: " + token_full)
+    #     parse_token(token_full, write_file_object)
+    #     advance_token() # !!! IS THIS NOT NEEDED??? !!! 
 
 def advance_token():
     global token_num
     global token_list_len
-    if token_num < token_list_len: 
+    if token_num < (token_list_len ): 
         token_num += 1 
 
-def parse_token(token_full, write_file_object):
-    token_content = get_token_content(token_full)
-    if token_content == 'class': compile_class(token_full, write_file_object)
+# def parse_token(token_full, write_file_object):
+#     token_content = get_token_content(token_full)
+#     if token_content == 'class': compile_class(token_full, write_file_object)
 
 def write_text_to_file(line_to_write, write_file_object):
     write_file_object.write(line_to_write + '\n')
@@ -66,20 +68,21 @@ def compile_class(token_full, write_file_object):
     token_full = get_token_full()
     token_content = get_token_content(token_full)
     if is_subroutine_dec(token_content):
-        write_text_to_file("<subroutineDec>", write_file_object)
         while is_subroutine_dec(token_content):
+            write_text_to_file("<subroutineDec>", write_file_object)
             compile_subroutine(token_full, write_file_object)
             token_full = get_token_full()
             token_content = get_token_content(token_full)
-        write_text_to_file("</subroutineDec>", write_file_object)
+            write_text_to_file("</subroutineDec>", write_file_object)
 
+    add_tokens_upto_delim(token_full, '}', write_file_object)
     write_text_to_file("</class>", write_file_object)
 
 ############################ ↓ HELPER FUNCTIONS ↓ ############################
 
 def add_tokens_upto_delim(token_full, delimiter, write_file_object):
     token_content = get_token_content(token_full)
-    while token_content != delimiter:
+    while (token_content != delimiter) and (token_num < (token_list_len )):
         write_text_to_file(token_full, write_file_object)       
         advance_token()
         token_full = get_token_full()
@@ -129,7 +132,6 @@ def compile_parameter_list(token_full, write_file_object):
     # ...
     write_text_to_file("</parameterList>", write_file_object)
     
-
 def compile_subroutine_body(token_full, write_file_object):
     write_text_to_file("<subroutineBody>", write_file_object)
     add_tokens_upto_delim(token_full, '{', write_file_object)
@@ -143,71 +145,140 @@ def compile_subroutine_body(token_full, write_file_object):
         token_content = get_token_content(token_full)
 
     # Expressions - Setting Variables
-    while is_statement(token_content):
-        compile_statements(token_full, write_file_object)
-        token_full = get_token_full()
-        token_content = get_token_content(token_full)
-
-
+    compile_statements(token_full, write_file_object)
+    # while is_statement(token_content):
+    #     compile_statements(token_full, write_file_object)
+    #     token_full = get_token_full()
+    #     token_content = get_token_content(token_full)
+    '''
+    # WTF IS THIS ????????????
     # Variable Statements
     while is_subroutine_dec(token_content):
         compile_var_dec(token_full, write_file_object)
         token_full = get_token_full()
         token_content = get_token_content(token_full)
-
+    '''
+    token_full = get_token_full()
     add_tokens_upto_delim(token_full, '}', write_file_object)
     write_text_to_file("</subroutineBody>", write_file_object)
 
 def compile_var_dec(token_full, write_file_object):
-    write_text_to_file("<varDec>", write_file_object)
+    write_text_to_file("<varDec>", write_file_object) 
     add_tokens_upto_delim(token_full, ';', write_file_object)
     write_text_to_file("</varDec>", write_file_object)
 
 def compile_statements(token_full, write_file_object):
+    write_text_to_file("<statements>", write_file_object) 
     token_content = get_token_content(token_full)
-    if token_content == 'let':
-        compile_let(token_full, write_file_object)
-    elif token_content == 'if': 
-         compile_if(token_full, write_file_object)    
-    elif token_content == 'while':
-        compile_while(token_full, write_file_object)    
-    elif token_content == 'do':
-        compile_do(token_full, write_file_object)
-    elif token_content == 'return':
-        compile_return(token_full, write_file_object)
+    while is_statement(token_content):
+        if token_content == 'let':
+            compile_let(token_full, write_file_object)
+            token_full = get_token_full()
+        elif token_content == 'if': 
+                compile_if(token_full, write_file_object)    
+                token_full = get_token_full()
+        elif token_content == 'while':
+            compile_while(token_full, write_file_object)    
+            token_full = get_token_full()
+        elif token_content == 'do':
+            compile_do(token_full, write_file_object)
+            token_full = get_token_full()
+        elif token_content == 'return':
+            compile_return(token_full, write_file_object)
+            token_full = get_token_full()
+        token_content = get_token_content(token_full)
+    write_text_to_file("</statements>", write_file_object) 
 
 def compile_let(token_full, write_file_object):
-    pass
+    write_text_to_file("<letStatement>", write_file_object) 
+    add_tokens_upto_delim(token_full, '=', write_file_object) 
+    token_full = get_token_full()
+    compile_expression(token_full, write_file_object)
+    token_full = get_token_full()
+    add_tokens_upto_delim(token_full, ';', write_file_object) 
+    write_text_to_file("</letStatement>", write_file_object) 
 
 def compile_if(token_full, write_file_object):
-    pass
+    write_text_to_file("<ifStatement>", write_file_object) 
+    
+    add_tokens_upto_delim(token_full, '(', write_file_object)
+    token_full = get_token_full()
+    compile_expression(token_full, write_file_object)
+    token_full = get_token_full()
+    add_tokens_upto_delim(token_full, '{', write_file_object)
+
+    token_full = get_token_full()
+    compile_statements(token_full, write_file_object)
+    token_full = get_token_full()
+    add_tokens_upto_delim(token_full, '}', write_file_object)
+
+    token_full = get_token_full()
+    token_content = get_token_content(token_full)
+    if (token_content == "else"):
+        add_tokens_upto_delim(token_full, '{', write_file_object)
+        token_full = get_token_full()
+        compile_statements(token_full, write_file_object)
+        token_full = get_token_full()
+        add_tokens_upto_delim(token_full, '}', write_file_object)
+        token_full = get_token_full()
+
+    write_text_to_file("</ifStatement>", write_file_object)  
 
 def compile_while(token_full, write_file_object):
     pass
 
 def compile_do(token_full, write_file_object):
-    pass
+    write_text_to_file("<doStatement>", write_file_object) 
+    add_tokens_upto_delim(token_full, '(', write_file_object)
+    
+    token_full = get_token_full()
+    compile_expression_list(token_full, write_file_object)
+    
+    token_full = get_token_full()
+    add_tokens_upto_delim(token_full, ';', write_file_object)
+    write_text_to_file("</doStatement>", write_file_object) 
 
 def compile_return(token_full, write_file_object):
-    pass
+    write_text_to_file("<returnStatement>", write_file_object) 
+    add_tokens_upto_delim(token_full, ';', write_file_object)
+    write_text_to_file("</returnStatement>", write_file_object) 
 
-def compile_expression():
-    pass
+def compile_expression(token_full, write_file_object):
+    write_text_to_file("<expression>", write_file_object) 
+    # add_tokens_upto_delim(token_full, '=', write_file_object) 
+    compile_term(token_full, write_file_object)
+    # add_tokens_upto_delim(token_full, ';', write_file_object) 
+    write_text_to_file("</expression>", write_file_object) 
 
-def compile_term():
-    pass
+def compile_term(token_full, write_file_object):
+    write_text_to_file("<term>", write_file_object) 
+    token_content = get_token_content(token_full)
+    add_tokens_upto_delim(token_full, token_content, write_file_object) # Add the current token
+    write_text_to_file("</term>", write_file_object) 
 
-def compile_expression_list():
-    pass
+def compile_expression_list(token_full, write_file_object):
+    write_text_to_file("<expressionList>", write_file_object) 
+    write_text_to_file("</expressionList>", write_file_object) 
 
 '''
 #######################################################################
 ############################   ↓ TO DO ↓   ############################
 
-x Currently up to completing all the "compile_statements" ie let, if, do
-etc.  Fill these in, can basically copy the code from one to the other.
+x Fix up all this file naming stuff
 
-Then trace back where this was called from and that is completing most
-of the functions!
+x Remove all the comments from this file
+
+x Clean up the order of all these functions !!!
+
+compile_expression(token_full, write_file_object)
+  - Currently just compiles a single line...
+  - I guess hence "expressionless"...
+
+x compile_expression_list(token_full, write_file_object)
+  - This just adds the tags <> </> and needs to actually process the
+    list of items inside the express eg in "Square.jack":
+    constructor Square new(int Ax, int Ay, int Asize)
+    all the parameteres "int Ax", "int Ay" etc need to be processed
+    ...ez clap
 
 '''
