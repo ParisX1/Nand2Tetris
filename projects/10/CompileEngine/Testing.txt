@@ -1,0 +1,26 @@
+Test script:
+
+x Goes to /Tests and delete all the .jack files
+
+x Goes into each folder within /Tests/..., one by one
+  eg: Tests/ArrayTest
+  
+x Copies all the .jack files from that folder into /Tests
+  so: Tests/ArrayTest
+  contains: Main.jack
+
+x Runs CompileEngine on that file
+  Executes: "CompileEngine.py Tests"
+
+x Deletes all the .xml files in 
+  C:\Users\tom\Dropbox\MOOCs\Nand2Tetris\tools\CompareTests
+
+x Copies the *.xml files to:
+  C:\Users\tom\Dropbox\MOOCs\Nand2Tetris\tools\CompareTests
+
+x Runs TextComparer on each file
+  eg  TextComparer.bat 
+	C:\Users\tom\Dropbox\MOOCs\Nand2Tetris\tools\CompareTests\main.xml 
+      C:\Users\tom\Dropbox\MOOCs\Nand2Tetris\projects\10\CompileEngine\Tests\main.xml
+
+
