@@ -22,6 +22,10 @@ def get_token_full():
     global token_num
     return token_list[token_num]
 
+def get_token_next_full():
+    global token_num
+    return token_list[token_num + 1]
+
 def get_token_type(token):
     end_index = token.index(">")
     return token[1:end_index]
@@ -47,12 +51,10 @@ def compile_class(token_full, write_file_object):
     token_full = get_token_full()
     token_content = get_token_content(token_full)
     if is_var_dec(token_content):
-        write_text_to_file("<classVarDec>", write_file_object)
         while is_var_dec(token_content):
             compile_class_var_dec(token_full, write_file_object)
             token_full = get_token_full()
             token_content = get_token_content(token_full)
-        write_text_to_file("</classVarDec>", write_file_object)
     
     # Class Functions
     token_full = get_token_full()
@@ -100,10 +102,17 @@ def is_statement(token_content):
     else:
         return False
 
+def is_expression_op(token_content):
+    op_list = ['+','-','*','/','&','|','<','>','=']
+    if token_content in op_list: return True
+    else: return False
+
 ############################ ↓ COMPILERS ↓ ############################
 
 def compile_class_var_dec(token_full, write_file_object):
+    write_text_to_file("<classVarDec>", write_file_object)
     add_tokens_upto_delim(token_full, ';', write_file_object)
+    write_text_to_file("</classVarDec>", write_file_object)
 
 # Functions and Methods
 
@@ -119,7 +128,11 @@ def compile_subroutine(token_full, write_file_object):
 
 def compile_parameter_list(token_full, write_file_object):
     write_text_to_file("<parameterList>", write_file_object)
-    # ...
+    token_content = get_token_content(token_full)
+    while token_content != ")":
+        add_tokens_upto_delim(token_full, token_content, write_file_object)
+        token_full = get_token_full()
+        token_content = get_token_content(token_full)
     write_text_to_file("</parameterList>", write_file_object)
     
 def compile_subroutine_body(token_full, write_file_object):
@@ -202,7 +215,17 @@ def compile_if(token_full, write_file_object):
     write_text_to_file("</ifStatement>", write_file_object)  
 
 def compile_while(token_full, write_file_object):
-    pass
+    write_text_to_file("<whileStatement>", write_file_object) 
+    add_tokens_upto_delim(token_full, '(', write_file_object)
+    token_full = get_token_full()
+    compile_expression(token_full, write_file_object)
+    token_full = get_token_full()
+    add_tokens_upto_delim(token_full, '{', write_file_object)
+    token_full = get_token_full()
+    compile_statements(token_full, write_file_object)
+    token_full = get_token_full()
+    add_tokens_upto_delim(token_full, '}', write_file_object)
+    write_text_to_file("</whileStatement>", write_file_object) 
 
 def compile_do(token_full, write_file_object):
     write_text_to_file("<doStatement>", write_file_object) 
@@ -217,7 +240,17 @@ def compile_do(token_full, write_file_object):
 
 def compile_return(token_full, write_file_object):
     write_text_to_file("<returnStatement>", write_file_object) 
-    add_tokens_upto_delim(token_full, ';', write_file_object)
+    token_content = get_token_content(token_full)
+    add_tokens_upto_delim(token_full, token_content, write_file_object)
+
+    token_full = get_token_full()
+    token_content = get_token_content(token_full)
+    if token_content == ';':
+        add_tokens_upto_delim(token_full, ';', write_file_object)
+    else:
+        compile_expression(token_full, write_file_object)   
+        token_full = get_token_full()
+        add_tokens_upto_delim(token_full, ';', write_file_object)
     write_text_to_file("</returnStatement>", write_file_object) 
 
 def compile_expression(token_full, write_file_object):
@@ -227,12 +260,50 @@ def compile_expression(token_full, write_file_object):
 
 def compile_term(token_full, write_file_object):
     write_text_to_file("<term>", write_file_object) 
+    
+    token_type = get_token_type(token_full)
+    if token_type == "identifier":
+        token_full_next = get_token_next_full()
+        token_content_next = get_token_content(token_full_next)
+        if token_content_next == '[':
+            pass
+        elif token_content_next == '(':
+            pass
+        elif token_content_next == '.':
+            add_tokens_upto_delim(token_full, '(', write_file_object)
+            token_full = get_token_full()
+            compile_expression_list(token_full, write_file_object)
+            add_tokens_upto_delim(token_full, ')', write_file_object)
+            token_full = get_token_full()
+    else:
+        token_content = get_token_content(token_full)
+        add_tokens_upto_delim(token_full, token_content, write_file_object)
+        token_full = get_token_full()
+    
+    '''
+    # Check for op terms
+    token_full = get_token_full()
     token_content = get_token_content(token_full)
-    add_tokens_upto_delim(token_full, token_content, write_file_object) # Add the current token
+    if is_expression_op(token_content):
+        add_tokens_upto_delim(token_full, token_content, write_file_object)
+        token_full = get_token_full()
+        compile_term(token_full, write_file_object)
+    '''
+    
     write_text_to_file("</term>", write_file_object) 
 
 def compile_expression_list(token_full, write_file_object):
     write_text_to_file("<expressionList>", write_file_object) 
+    token_content = get_token_content(token_full)
+    while token_content != ')':
+        compile_expression(token_full, write_file_object)
+        token_full = get_token_full()
+        token_content = get_token_content(token_full)
+        if token_content == ',':
+            add_tokens_upto_delim(token_full, token_content, write_file_object)
+            token_full = get_token_full()
+            token_content = get_token_content(token_full)
+
     write_text_to_file("</expressionList>", write_file_object) 
 
 '''
