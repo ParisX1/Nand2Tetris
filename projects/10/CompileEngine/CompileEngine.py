@@ -212,7 +212,6 @@ def compile_let(token_full, write_file_object):
     token_full = get_token_full()
     add_tokens_upto_delim(token_full, ';', write_file_object) 
     
-    
     write_text_to_file("</letStatement>", write_file_object) 
 
 def compile_if(token_full, write_file_object):
@@ -297,55 +296,50 @@ def compile_expression(token_full, write_file_object):
     write_text_to_file("</expression>", write_file_object) 
 
 def compile_term(token_full, write_file_object):
-    write_text_to_file("<term>", write_file_object) 
+    unaryOp = ['-', '~']
     token_content = get_token_content(token_full)
+    write_text_to_file("<term>", write_file_object) 
+    
+    # Check if variable grouping "()"
+    if token_content == '(':
+        add_tokens_upto_delim(token_full, token_content, write_file_object)
+        token_full = get_token_full()
+        compile_expression(token_full, write_file_object)
+        token_full = get_token_full()
+        add_tokens_upto_delim(token_full, ')', write_file_object)
+    
+    # Check if unaryOp term
+    elif token_content in unaryOp:
+        add_tokens_upto_delim(token_full, token_content, write_file_object)
+        token_full = get_token_full()
+        compile_term(token_full, write_file_object)
 
+    # Else: Add var name
+    else:
+        add_tokens_upto_delim(token_full, token_content, write_file_object)
+        token_full = get_token_full()
+        token_type = get_token_type(token_full)
+        token_content = get_token_content(token_full)
+
+    # MAYBE NEED TO DO THIS FIRST ???? lOOK AHEAD
+    # Check if next token is: array "[]" | method "."
+    token_full = get_token_full()
     token_type = get_token_type(token_full)
     if token_type == "identifier":
-        token_full_next = get_token_next_full()
-        token_content_next = get_token_content(token_full_next)
-        if token_content_next == '[':
+        if token_content == '[':
             add_tokens_upto_delim(token_full, '[', write_file_object)
             token_full = get_token_full()
             compile_expression(token_full, write_file_object)
             token_full = get_token_full()
             add_tokens_upto_delim(token_full, ']', write_file_object)
-            token_full = get_token_full()
-        elif token_content_next == '(':
-            pass
-        elif token_content_next == '.':
+        elif token_content == '.':
             add_tokens_upto_delim(token_full, '(', write_file_object)
             token_full = get_token_full()
             compile_expression_list(token_full, write_file_object)
-            add_tokens_upto_delim(token_full, ';', write_file_object)
-            token_full = get_token_full()
-        else:
-            token_content = get_token_content(token_full)
-            add_tokens_upto_delim(token_full, token_content, write_file_object)
-            token_full = get_token_full()
+            add_tokens_upto_delim(token_full, ')', write_file_object)
     
-    # if token_content == '(':
-    #     add_tokens_upto_delim(token_full, token_content, write_file_object)
-    #     token_full = get_token_full()
-    #     compile_expression(token_full, write_file_object)
-    #     token_full = get_token_full()
-    #     token_content = get_token_content(token_full)
-    #     add_tokens_upto_delim(token_full, token_content, write_file_object)
-    #     token_full = get_token_full()
-    
-    
-    add_tokens_upto_delim(token_full, token_content, write_file_object)
-    token_full = get_token_full()
-    
-    '''
-    # Check for op terms
-    token_full = get_token_full()
-    token_content = get_token_content(token_full)
-    if is_expression_op(token_content):
-        add_tokens_upto_delim(token_full, token_content, write_file_object)
-        token_full = get_token_full()
-        compile_term(token_full, write_file_object)
-    '''
+    #else:
+    #    add_tokens_upto_delim(token_full, token_content, write_file_object)
     
     write_text_to_file("</term>", write_file_object) 
 

@@ -1,0 +1,55 @@
+#####################################
+SUMMARY
+#####################################
+
+let direction = 0;
+let s = "string constant";
+let x = Ax;
+let y = y + 2;
+let s = null;
+let a[1] = a[2];
+
+let i = i * (-j);
+let j = j / (-2);   // note: unary negate constant 2
+let i = i | j;
+
+let game = SquareGame.new();
+let key = Keyboard.keyPressed();
+let square = Square.new(0, 0, 30);
+
+#####################################
+Main.jack
+#####################################
+
+let game = SquareGame.new();
+
+let s = "string constant";
+let s = null;
+let a[1] = a[2];
+
+let i = i * (-j);
+let j = j / (-2);   // note: unary negate constant 2
+let i = i | j;
+
+
+#####################################
+Square.jack
+#####################################
+
+let x = Ax;
+let y = Ay;
+let size = Asize;
+let size = size + 2;
+let y = y + 2;
+
+#####################################
+SquareGame.jack
+#####################################
+
+let square = Square.new(0, 0, 30);
+let direction = 0;  // initial state is no movement
+let exit = false;
+let key = Keyboard.keyPressed();
+if (key = 81)  { let exit = true; }     // q key
+if (key = 131) { let direction = 1; }   // up arrow
+
