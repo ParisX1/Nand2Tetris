@@ -317,15 +317,17 @@ def compile_term(token_full, write_file_object):
     # Else: Add var name
     else:
         add_tokens_upto_delim(token_full, token_content, write_file_object)
-        token_full = get_token_full()
-        token_type = get_token_type(token_full)
-        token_content = get_token_content(token_full)
+        # token_full = get_token_full()
+        # token_type = get_token_type(token_full)
+        # token_content = get_token_content(token_full)
 
     # MAYBE NEED TO DO THIS FIRST ???? lOOK AHEAD
     # Check if next token is: array "[]" | method "."
+    token_type = get_token_type(token_full) # Token type of previous token
     token_full = get_token_full()
-    token_type = get_token_type(token_full)
-    if token_type == "identifier":
+    token_content = get_token_content(token_full)
+    
+    if token_type == "identifier": # Check type of previous token
         if token_content == '[':
             add_tokens_upto_delim(token_full, '[', write_file_object)
             token_full = get_token_full()
