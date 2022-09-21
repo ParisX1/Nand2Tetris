@@ -5,6 +5,7 @@ token_list_len = len(token_list)
 def parser(write_file_object):
     global token_num
     global token_list_len
+    token_num = 0
     token_list_len = len(token_list) 
     token_full = token_list[token_num]
     compile_class(token_full, write_file_object)
@@ -103,7 +104,7 @@ def is_statement(token_content):
         return False
 
 def is_op_term(token_content):
-    op_list = ['+','-','*','/','&','|','<','>','=']
+    op_list = ['+','-','*','/','&amp;','|','&lt;','&gt;','=']
     if token_content in op_list: return True
     else: return False
 
@@ -191,16 +192,10 @@ def compile_let(token_full, write_file_object):
     token_full = get_token_full()
     token_content = get_token_content(token_full)
     add_tokens_upto_delim(token_full, token_content, write_file_object) 
-    
-    #token_full = get_token_full()
-    #token_full_next = get_token_next_full()
-    #token_content_next = get_token_content(token_full_next)
 
     token_full = get_token_full()
     token_content = get_token_content(token_full)
     if token_content == '[':
-        # Add '['
-        # token_content = get_token_content(token_full)
         add_tokens_upto_delim(token_full, token_content, write_file_object) 
         token_full = get_token_full()
         compile_expression(token_full, write_file_object)
@@ -317,16 +312,11 @@ def compile_term(token_full, write_file_object):
     # Else: Add var name
     else:
         add_tokens_upto_delim(token_full, token_content, write_file_object)
-        # token_full = get_token_full()
-        # token_type = get_token_type(token_full)
-        # token_content = get_token_content(token_full)
-
-    # MAYBE NEED TO DO THIS FIRST ???? lOOK AHEAD
-    # Check if next token is: array "[]" | method "."
     token_type = get_token_type(token_full) # Token type of previous token
     token_full = get_token_full()
     token_content = get_token_content(token_full)
     
+    # Look at next token for Array or Method
     if token_type == "identifier": # Check type of previous token
         if token_content == '[':
             add_tokens_upto_delim(token_full, '[', write_file_object)
@@ -338,11 +328,9 @@ def compile_term(token_full, write_file_object):
             add_tokens_upto_delim(token_full, '(', write_file_object)
             token_full = get_token_full()
             compile_expression_list(token_full, write_file_object)
+            token_full = get_token_full()
             add_tokens_upto_delim(token_full, ')', write_file_object)
-    
-    #else:
-    #    add_tokens_upto_delim(token_full, token_content, write_file_object)
-    
+
     write_text_to_file("</term>", write_file_object) 
 
 def compile_expression_list(token_full, write_file_object):
