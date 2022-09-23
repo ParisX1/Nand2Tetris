@@ -11,9 +11,6 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "args": ["Tests"],
-            //"args": ["Tests/SquareGame.jack"],
-            //"args": ["ExpressionLessSquare/Main.jack"],
-            //"args": ["ExpressionLessSquare/SquareGame.jack"],
             "justMyCode": true
         }
     ]

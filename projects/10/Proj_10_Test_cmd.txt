@@ -1,0 +1,36 @@
+cd C:/Users/tom/Dropbox/MOOCs/Nand2Tetris/tools
+
+
+##############################################################
+/ ExpressionlessSquare
+
+TextComparer Compare_Out/MainT.xml Compare_Ref/MainT.xml 
+TextComparer Compare_Out/Main.xml Compare_Ref/Main.xml 
+
+TextComparer Compare_Out/SquareT.xml Compare_Ref/SquareT.xml 
+TextComparer Compare_Out/Square.xml Compare_Ref/Square.xml 
+
+SquareGame.jack
+TextComparer C:/Users/tom/Dropbox/MOOCs/Nand2Tetris/projects/10/CompileEngine/Tests/SquareGame.xml C:/Users/tom/Dropbox/MOOCs/Nand2Tetris/projects/10/CompileEngine/Tests/ExpressionLessSquare/SquareGame.xml 
+
+
+##############################################################
+/ Square
+
+Main.jack
+TextComparer C:/Users/tom/Dropbox/MOOCs/Nand2Tetris/projects/10/CompileEngine/Tests/Main.xml C:/Users/tom/Dropbox/MOOCs/Nand2Tetris/projects/10/CompileEngine/Tests/Square/Main.xml 
+
+
+Square.jack
+TextComparer C:/Users/tom/Dropbox/MOOCs/Nand2Tetris/projects/10/CompileEngine/Tests/Square.xml C:/Users/tom/Dropbox/MOOCs/Nand2Tetris/projects/10/CompileEngine/Tests/Square/Square.xml 
+
+SquareGame.jack
+TextComparer C:/Users/tom/Dropbox/MOOCs/Nand2Tetris/projects/10/CompileEngine/Tests/SquareGame.xml C:/Users/tom/Dropbox/MOOCs/Nand2Tetris/projects/10/CompileEngine/Tests/Square/SquareGame.xml 
+
+
+
+##############################################################
+/ ArrayTest
+
+Main.jack
+TextComparer C:/Users/tom/Dropbox/MOOCs/Nand2Tetris/projects/10/CompileEngine/Tests/Main.xml C:/Users/tom/Dropbox/MOOCs/Nand2Tetris/projects/10/CompileEngine/Tests/ArrayTest/Main.xml

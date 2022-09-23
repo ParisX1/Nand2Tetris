@@ -1,0 +1,40 @@
+// Check if two numbers are equal
+
+@SP
+M=M-1
+A=M
+D=M	// Value of SP *pointer loaded into D-register
+
+@SP
+M=M-1
+A=M	// Value of SP *pointer-1 loaded into A/M-register
+
+D=D-M	// Saves substraction (M-D) in D-register
+
+@NOT_EQUAL
+D,JNE	// Jump if numbers not equal
+
+(EQUAL)
+D=-1
+@SP
+A=M
+M=D
+
+@END_COMPARE
+0,JMP
+
+(NOT_EQUAL)
+D=0
+@SP
+A=M
+M=D
+
+(END_COMPARE)
+
+@SP
+M=M+1
+
+
+
+-----------------------------
+

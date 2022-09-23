@@ -1,0 +1,35 @@
+// This will load the value 7 into the RAM location stored at RAM[0] -> ie will store 7 at location RAM[256]
+// You can use @SP to represent the stack-pointer location, ie RAM[0] ie @0
+
+// Say RAM[0] = 256 ie is at the beginning of the stack
+
+@7 	// Want to load in the value 7 -> sets value of A-register to 7
+D=A	// Load 7 into D-register
+
+@0 	// The location of the pointer is RAM[0]
+A=M	// Load value of pointer (value at RAM[0] into A-register)  ** This has side-effect of loading M = value at A-register **
+M=D	// Load the value in D-register (ie 7) into the memory location (at RAM[256])
+
+@0	// Promote the stack pointer forward one
+M=M+1
+
+//////////////////////////////////////////////////////////////////////
+// This will get the value at RAM[256] and load it into the D-register
+
+@0	// Load stack pointer
+M=M-1	// Decrease value by one
+A=M	// Load value of M into A-register, side effect of loading M = value at A-register
+D=M	// Loads the value the stack-points points to, into the D-register
+
+
+
+//////////////////////////////////////////////////////////////////////
+// Add the value of the D-register to the value at RAM[257]
+@0	// Load stack pointer
+M=M-1 // Move pointer value back one
+A=M	// Load value of M into A-register, side effect of loading M = value at A-register
+M=D+M // Stores value of addition into RAM[256]
+
+@0	// Promote the stack pointer forward one
+M=M+1
+
