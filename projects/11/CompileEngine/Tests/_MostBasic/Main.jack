@@ -1,0 +1,9 @@
+// Does nothing, just to test the program can compile and run
+class Main {
+
+   function void main() {
+      //do Output.printInt(1 + (2 * 3));
+      return;
+   }
+
+}
