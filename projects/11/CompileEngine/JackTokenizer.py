@@ -1,3 +1,14 @@
+'''
+Jack Tokenizer
+- Creates "raw" tokens from jack file
+- "Raw" tokens are each syntatic element from a .jack file, without context
+- Eg the line: "function void main(){", is seperated into three elements without specifiying what each 
+  element represents
+- Cleans lines of spaces, commments and tabs
+- Tokens  written to .xml file in proper format: "<token_type> content </token_type>"
+- Adds tokens to token_list array; used in CompileEngine.py
+'''
+
 from Globals import *
 
 def tokenizer(input_text, write_file_object):

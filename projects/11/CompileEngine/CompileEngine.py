@@ -1,3 +1,12 @@
+'''
+Compile Engine
+- Uses tokens from token_list (created in JackTokenizer.py)
+- Adds "context wrapping" to token in token_list
+- Eg "function void main(){" is extended
+  so: "<subroutineDec> ... </subroutineDec>" wraps the tokens
+- The full token list is outputted to .xml file
+'''
+
 from Globals import *
 token_num = 0
 token_list_len = len(token_list) 

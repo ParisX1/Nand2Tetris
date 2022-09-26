@@ -1,3 +1,10 @@
+'''
+Jack Compiler
+- Reads .jack files in folder or file passed as arguments
+- Opens write file to create tokens (raw list and with context wrapping)
+- Loops over files reading jack code, passing data to CompileEngine.py
+'''
+
 import sys
 import os
 from JackTokenizer import *
