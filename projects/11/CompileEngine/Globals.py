@@ -9,7 +9,16 @@ symbol_replacement = {'<':"&lt;",
                       '&':"&amp;"
                      }
 symbol_table_class = {}
-symbol_table_method = {}
+symbol_table_subroutine = {}
 token_list = []
 multiline_comment = False
 is_debug_mode = True
+
+'''
+symbol_table_subroutine[variable_name] = {
+                                          'Type' : var_type,
+                                          'Kind' : "local",
+                                          'Count' : local_count
+                                         }
+
+'''
