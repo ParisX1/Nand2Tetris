@@ -129,10 +129,10 @@ def compile_statements(token_full, write_token_file_object, write_vm_file_object
                 compile_if(token_full, write_token_file_object, write_vm_file_object)    
                 token_full = get_token_full()
         elif token_content == 'while':
-            compile_while(token_full, write_token_file_object)    
+            compile_while(token_full, write_token_file_object, write_vm_file_object)    
             token_full = get_token_full()
         elif token_content == 'do':
-            compile_do(token_full, write_token_file_object)
+            compile_do(token_full, write_token_file_object, write_vm_file_object)
             token_full = get_token_full()
         elif token_content == 'return':
             compile_return(token_full, write_token_file_object, write_vm_file_object)
@@ -195,7 +195,7 @@ def compile_if(token_full, write_token_file_object, write_vm_file_object):
 
     write_text_to_file("</ifStatement>", write_token_file_object)  
 
-def compile_while(token_full, write_token_file_object):
+def compile_while(token_full, write_token_file_object, write_vm_file_object):
     write_text_to_file("<whileStatement>", write_token_file_object) 
     add_tokens_upto_delim(token_full, '(', write_token_file_object)
     token_full = get_token_full()
@@ -208,13 +208,22 @@ def compile_while(token_full, write_token_file_object):
     add_tokens_upto_delim(token_full, '}', write_token_file_object)
     write_text_to_file("</whileStatement>", write_token_file_object) 
 
-def compile_do(token_full, write_token_file_object):
+def compile_do(token_full, write_token_file_object, write_vm_file_object):
+    global token_list
+    global token_num
+    is_printInt = False
     write_text_to_file("<doStatement>", write_token_file_object) 
     add_tokens_upto_delim(token_full, '(', write_token_file_object)
-    
+
+    if get_token_content(token_list[token_num - 2]) == "printInt": is_printInt = True
+
     token_full = get_token_full()
-    compile_expression_list(token_full, write_token_file_object)
-    
+    compile_expression_list(token_full, write_token_file_object, write_vm_file_object)
+
+    if is_printInt == True:
+         write_text_to_file("call Output.printInt 1", write_vm_file_object)
+         write_text_to_file("pop temp 0", write_vm_file_object)
+
     token_full = get_token_full()
     add_tokens_upto_delim(token_full, ';', write_token_file_object)
     write_text_to_file("</doStatement>", write_token_file_object) 
@@ -241,9 +250,9 @@ def compile_return(token_full, write_token_file_object, write_vm_file_object):
 
     write_text_to_file("return", write_vm_file_object)
 
-def compile_expression(token_full, write_token_file_object):
+def compile_expression(token_full, write_token_file_object, write_vm_file_object):
     write_text_to_file("<expression>", write_token_file_object) 
-    compile_term(token_full, write_token_file_object)
+    compile_term(token_full, write_token_file_object, write_vm_file_object)
     token_full = get_token_full()
 
     # Check for op terms
@@ -251,13 +260,19 @@ def compile_expression(token_full, write_token_file_object):
     while is_op_term(token_content):
         add_tokens_upto_delim(token_full, token_content, write_token_file_object)
         token_full = get_token_full()
-        compile_term(token_full, write_token_file_object)
+        compile_term(token_full, write_token_file_object, write_vm_file_object)
+
+        if token_content == "+": write_text_to_file("add", write_vm_file_object)
+        if token_content == "-": write_text_to_file("sub", write_vm_file_object)
+        if token_content == "*": write_text_to_file("call Math.multiply 2", write_vm_file_object)
+        if token_content == "/": write_text_to_file("call Math.divide 2", write_vm_file_object)        
+        
         token_full = get_token_full()
         token_content = get_token_content(token_full)
     
     write_text_to_file("</expression>", write_token_file_object) 
 
-def compile_term(token_full, write_token_file_object):
+def compile_term(token_full, write_token_file_object, write_vm_file_object):
     unaryOp = ['-', '~']
     token_content = get_token_content(token_full)
     write_text_to_file("<term>", write_token_file_object) 
@@ -266,7 +281,7 @@ def compile_term(token_full, write_token_file_object):
     if token_content == '(':
         add_tokens_upto_delim(token_full, token_content, write_token_file_object)
         token_full = get_token_full()
-        compile_expression(token_full, write_token_file_object)
+        compile_expression(token_full, write_token_file_object, write_vm_file_object)
         token_full = get_token_full()
         add_tokens_upto_delim(token_full, ')', write_token_file_object)
     
@@ -281,12 +296,15 @@ def compile_term(token_full, write_token_file_object):
         # Add identifier name
         add_tokens_upto_delim(token_full, token_content, write_token_file_object)
 
+        if get_token_type(token_full) == "integerConstant":
+            integer_value = get_token_content(token_full)
+            write_text_to_file("push constant " + integer_value ,write_vm_file_object)
+
         # Add Category: field, static, var, arg, class, subroutine
 
         # Add Index: field, static, var or arg correspond to symbol table
 
         # Add Usage: declared or used
-
 
     token_type = get_token_type(token_full) # Token type of previous token
     token_full = get_token_full()
@@ -309,11 +327,11 @@ def compile_term(token_full, write_token_file_object):
 
     write_text_to_file("</term>", write_token_file_object) 
 
-def compile_expression_list(token_full, write_token_file_object):
+def compile_expression_list(token_full, write_token_file_object, write_vm_file_object):
     write_text_to_file("<expressionList>", write_token_file_object) 
     token_content = get_token_content(token_full)
     while token_content != ')':
-        compile_expression(token_full, write_token_file_object)
+        compile_expression(token_full, write_token_file_object, write_vm_file_object)
         token_full = get_token_full()
         token_content = get_token_content(token_full)
         if token_content == ',':
