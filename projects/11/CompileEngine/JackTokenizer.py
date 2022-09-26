@@ -11,7 +11,7 @@ Jack Tokenizer
 
 from Globals import *
 
-def tokenizer(input_text, write_file_object):
+def tokenizer(input_text, write_token_file_object):
     global is_debug_mode 
     if is_debug_mode: print(input_text)
     input_text_clean = clean_line_text(input_text)
@@ -19,9 +19,9 @@ def tokenizer(input_text, write_file_object):
     if is_debug_mode: print(line_list)
     for item in line_list:
         if item in keyword:
-            create_token(item, write_file_object)
+            create_token(item, write_token_file_object)
         elif item in symbol:
-            create_token(item, write_file_object)    
+            create_token(item, write_token_file_object)    
         else:
             i = 0
             while i < len(item):
@@ -29,15 +29,15 @@ def tokenizer(input_text, write_file_object):
                 found = False
                 if item[i] in symbol:
                     if i > 0: # Process prior string if not first char
-                        create_token(token_string[0:i], write_file_object)
-                    create_token(item[i], write_file_object)
+                        create_token(token_string[0:i], write_token_file_object)
+                    create_token(item[i], write_token_file_object)
                     item = item[i+1:]
                     found = True
                     i = 0
                 if found == False:
                     i+=1
                 if (i > 0) and (i == len(item)): # If no match for keyword or symbol, use whole string
-                    create_token(item, write_file_object)
+                    create_token(item, write_token_file_object)
 
 def clean_line_text(text):
     # Removes comments and tabs
@@ -91,7 +91,7 @@ def create_line_list(text):
         i = i + 1 
     return line_list
 
-def create_token(token_string, write_file_object):
+def create_token(token_string, write_token_file_object):
     if token_string in keyword:
         line_to_write = token_string_creator(token_string, "keyword")
     elif token_string in symbol:
@@ -106,11 +106,11 @@ def create_token(token_string, write_file_object):
         line_to_write = token_string_creator(token_string, "stringConstant")
     else:
         line_to_write = token_string_creator(token_string, "identifier")
-    write_to_file(line_to_write, write_file_object)
+    write_to_file(line_to_write, write_token_file_object)
     token_list.append(line_to_write)
 
-def write_to_file(line_to_write, write_file_object):
-    write_file_object.write(line_to_write + '\n')
+def write_to_file(line_to_write, write_token_file_object):
+    write_token_file_object.write(line_to_write + '\n')
 
 def token_string_creator(token_string, type_string):
     return '<' + type_string + '>' + token_string + "</" + type_string + '>'

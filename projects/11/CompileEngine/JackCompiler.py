@@ -54,15 +54,6 @@ if __name__ == "__main__":
     list_token_file_names = []
     token_filename_ext = "T"
     compile_filename_ext = ""
-    
-    '''
-    Change this so we create the token array for each file
-    Then once we've read the file, created the token file output (and so
-    the token array is complete), we can then process the parser.
-    So instead of reading all the files, then processing the parser,
-    we each one file, parse that file, then clear the token array
-    and run the tokeniser on the next file, and so on.
-    '''
 
     create_file_list() # List of Jack files to process
 
@@ -70,20 +61,22 @@ if __name__ == "__main__":
         if is_debug_mode: print(file_to_read)
         
         # 1. Create tokens -> Create file of tokens (eg MainT.xml)
-        write_file_object = open_write_file(file_to_read, ".jack", ".xml", token_filename_ext)
-        list_token_file_names.append(write_file_object.name)
-        write_file_object.write("<tokens>" + '\n')
+        write_token_file_object = open_write_file(file_to_read, ".jack", ".xml", token_filename_ext)
+        list_token_file_names.append(write_token_file_object.name)
+        write_token_file_object.write("<tokens>" + '\n')
         multiline_comment = False
         with open(file_to_read, 'r') as file_read_object:
             for line in file_read_object:
                 if line_has_code(line):
-                    tokenizer(line, write_file_object)
-        write_file_object.write("</tokens>" + '\n')
-        write_file_object.close()
+                    tokenizer(line, write_token_file_object)
+        write_token_file_object.write("</tokens>" + '\n')
+        write_token_file_object.close()
 
         # 2. Parse tokens -> Create file of analysed tokens eg (Main.xml)
         file_to_write = file_to_read
-        write_file_object = open_write_file(file_to_write, ".jack", ".xml", compile_filename_ext)
-        parser(write_file_object)
-        write_file_object.close()
+        write_token_file_object = open_write_file(file_to_write, ".jack", ".xml", compile_filename_ext)
+        write_vm_file_object = open_write_file(file_to_read, ".jack", ".vm", compile_filename_ext)
+        parser(write_token_file_object, write_vm_file_object)
+        write_token_file_object.close()
+        write_vm_file_object.close()
         token_list.clear()
