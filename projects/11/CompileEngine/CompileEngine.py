@@ -97,8 +97,7 @@ def compile_parameter_list(token_full, write_token_file_object):
     
 def compile_subroutine_body(token_full, write_token_file_object, write_vm_file_object):
     global symbol_table_subroutine
-    local_count = 0
-    symbol_table_subroutine.clear()
+    # local_count = 0
     write_text_to_file("<subroutineBody>", write_token_file_object)
     add_tokens_upto_delim(token_full, '{', write_token_file_object)
     token_full = get_token_full()
@@ -107,8 +106,8 @@ def compile_subroutine_body(token_full, write_token_file_object, write_vm_file_o
     # Variable Declarations
     subroutine_var_count = 0
     while is_var_dec(token_content):
-        local_count = compile_var_dec(token_full, local_count, write_token_file_object)
-        subroutine_var_count += 1
+        subroutine_var_count = compile_var_dec(token_full, subroutine_var_count, write_token_file_object)
+        # subroutine_var_count += local_count
         token_full = get_token_full()
         token_content = get_token_content(token_full)
 
@@ -120,11 +119,10 @@ def compile_subroutine_body(token_full, write_token_file_object, write_vm_file_o
     add_tokens_upto_delim(token_full, '}', write_token_file_object)
     write_text_to_file("</subroutineBody>", write_token_file_object)
 
-def compile_var_dec(token_full, local_count, write_token_file_object):
+def compile_var_dec(token_full, subroutine_var_count, write_token_file_object):
     global symbol_table_subroutine
     global token_num
     token_num_start = token_num
-    variable_dict = {}
     
     write_text_to_file("<varDec>", write_token_file_object) 
     add_tokens_upto_delim(token_full, ';', write_token_file_object)
@@ -144,11 +142,16 @@ def compile_var_dec(token_full, local_count, write_token_file_object):
     # Add variable to subroutine symbol table
     for variable in var_name_list:
         variable_name = get_token_content(variable)
+        
+        '''
         symbol_table_subroutine[variable_name] = {
                                             'Type' : var_type,
                                             'Kind' : "local",
-                                            'Count' : local_count
+                                            'Count' : subroutine_var_count
                                             }
+        '''
+        add_to_symbol_table_subroutine(variable_name, var_type, "local", subroutine_var_count)
+
         '''
         variable_dict[
                       #'Name' : variable,
@@ -157,10 +160,11 @@ def compile_var_dec(token_full, local_count, write_token_file_object):
                       'Count' : local_count
                      ]
         '''
-        local_count += 1
+        subroutine_var_count += 1
     
-    if is_debug_mode: print(symbol_table_subroutine)
-    return local_count
+    if is_debug_mode: print("Symbol Table\n", symbol_table_subroutine)
+    if is_debug_mode: print("Subroutine_var_count\n", subroutine_var_count,'\n')
+    return subroutine_var_count
 
 def compile_statements(token_full, write_token_file_object, write_vm_file_object):
     write_text_to_file("<statements>", write_token_file_object) 
@@ -293,10 +297,7 @@ def compile_do(token_full, write_token_file_object, write_vm_file_object):
     write_text_to_file("</doStatement>", write_token_file_object) 
 
 def compile_return(token_full, write_token_file_object, write_vm_file_object):
-    global is_void_type
-
-    if is_void_type == True:
-        write_text_to_file("push constant 0", write_vm_file_object)
+    global symbol_table_subroutine
 
     write_text_to_file("<returnStatement>", write_token_file_object) 
     token_content = get_token_content(token_full)
@@ -306,6 +307,8 @@ def compile_return(token_full, write_token_file_object, write_vm_file_object):
     token_content = get_token_content(token_full)
     if token_content == ';':
         add_tokens_upto_delim(token_full, ';', write_token_file_object)
+        write_text_to_file("push constant 0", write_vm_file_object)
+
     else:
         compile_expression(token_full, write_token_file_object, write_vm_file_object)   
         token_full = get_token_full()
@@ -313,6 +316,7 @@ def compile_return(token_full, write_token_file_object, write_vm_file_object):
     write_text_to_file("</returnStatement>", write_token_file_object) 
 
     write_text_to_file("return", write_vm_file_object)
+    symbol_table_subroutine.clear()
 
 def compile_expression(token_full, write_token_file_object, write_vm_file_object):
     write_text_to_file("<expression>", write_token_file_object) 
@@ -426,8 +430,6 @@ def compile_expression_list(token_full, write_token_file_object, write_vm_file_o
 
 ############################    ↓ VM WRITERS ↓    ############################
 
-
-
 ############################ ↓ HELPER FUNCTIONS ↓ ############################
 
 def add_tokens_upto_delim(token_full, delimiter, write_token_file_object):
@@ -450,6 +452,14 @@ def write_text_to_file(line_to_write, write_token_file_object, write_end_line = 
     write_token_file_object.write(line_to_write)
     if write_end_line == True:
         write_token_file_object.write('\n')
+
+def add_to_symbol_table_subroutine(variable_name, var_type, var_kind, subroutine_var_count):
+    global symbol_table_subroutine
+    symbol_table_subroutine[variable_name] = {
+                                              'Type' : var_type,
+                                              'Kind' : var_kind,
+                                              'Count' : subroutine_var_count
+                                             }
 
 def get_token_full():
     global token_num
@@ -514,10 +524,11 @@ def is_in_symbol_table(token_content):
     else: 
         return False
 
-
 '''
 ############################   ↓ TO DO ↓   ############################
 
-x Fix up all this file naming stuff?
+x Push argument to symbol table
+x Make sure to push "this" as first argument
+x Looking at after line 16 in Main.vm
 
 '''
