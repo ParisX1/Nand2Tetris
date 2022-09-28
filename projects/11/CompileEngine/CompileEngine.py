@@ -252,10 +252,17 @@ def compile_if(token_full, write_token_file_object, write_vm_file_object):
     write_text_to_file("</ifStatement>", write_token_file_object)  
 
 def compile_while(token_full, write_token_file_object, write_vm_file_object):
+    
+    write_text_to_file("label WHILE_EXP0", write_vm_file_object)
+
     write_text_to_file("<whileStatement>", write_token_file_object) 
     add_tokens_upto_delim(token_full, '(', write_token_file_object)
     token_full = get_token_full()
     compile_expression(token_full, write_token_file_object, write_vm_file_object)
+
+    write_text_to_file("not", write_vm_file_object)
+    write_text_to_file("if-goto WHILE_END0", write_vm_file_object)
+
     token_full = get_token_full()
     add_tokens_upto_delim(token_full, '{', write_token_file_object)
     token_full = get_token_full()
@@ -264,10 +271,14 @@ def compile_while(token_full, write_token_file_object, write_vm_file_object):
     add_tokens_upto_delim(token_full, '}', write_token_file_object)
     write_text_to_file("</whileStatement>", write_token_file_object) 
 
+    write_text_to_file("label WHILE_END0", write_vm_file_object)
+
 def compile_do(token_full, write_token_file_object, write_vm_file_object):
+    # Do statement: call subroutine
+
     global token_list
     global token_num
-    is_printInt = False
+    # is_printInt = False
     is_void = True
     num_arguments = 0
     write_text_to_file("<doStatement>", write_token_file_object) 
@@ -275,7 +286,6 @@ def compile_do(token_full, write_token_file_object, write_vm_file_object):
 
     call_subroutine_string = "call " + get_token_content(token_list[token_num-4])
     call_subroutine_string += '.' + get_token_content(token_list[token_num-2])
-
     # if get_token_content(token_list[token_num - 2]) == "printInt": is_printInt = True
 
     token_full = get_token_full()
@@ -290,6 +300,7 @@ def compile_do(token_full, write_token_file_object, write_vm_file_object):
          write_text_to_file("pop temp 0", write_vm_file_object)
     '''
 
+    # Void functions will return null to stack.  Need to pop from stack to temp to remove
     if is_void == True: write_text_to_file("pop temp 0", write_vm_file_object)
 
     token_full = get_token_full()
@@ -377,6 +388,12 @@ def compile_term(token_full, write_token_file_object, write_vm_file_object):
             integer_value = get_token_content(token_full)
             write_text_to_file("push constant " + integer_value, write_vm_file_object)
 
+        if get_token_content(token_full) == "true":
+            write_text_to_file("push constant 0\n" + "not", write_vm_file_object)
+        
+        if get_token_content(token_full) == "false":
+            write_text_to_file("push constant 0", write_vm_file_object)
+
         elif is_in_symbol_table(token_content):
             assign_to_var_string = get_variable_details(token_content)
             write_text_to_file("push " + assign_to_var_string, write_vm_file_object)
@@ -413,6 +430,13 @@ def compile_term(token_full, write_token_file_object, write_vm_file_object):
     write_text_to_file("</term>", write_token_file_object) 
 
 def compile_expression_list(token_full, write_token_file_object, write_vm_file_object):
+    global symbol_table_subroutine
+    global token_list
+    global token_num
+    class_name = get_token_content(token_list[1])
+    # Add "this" to symbol table
+    add_to_symbol_table_subroutine("this", class_name, "arg", 0)
+
     num_arguments = 0
     write_text_to_file("<expressionList>", write_token_file_object) 
     token_content = get_token_content(token_full)
@@ -421,6 +445,16 @@ def compile_expression_list(token_full, write_token_file_object, write_vm_file_o
         token_full = get_token_full()
         token_content = get_token_content(token_full)
         num_arguments += 1
+
+
+        # Add argument to symbol table
+        variable_name = get_token_content(token_list[token_num - 4])
+        var_type = get_token_content(token_list[token_num - 2])
+
+        # If it's a method, add "this", below
+        # add_to_symbol_table_subroutine("this", class_name, "arg", num_arguments)
+
+
         if token_content == ',':
             add_tokens_upto_delim(token_full, token_content, write_token_file_object)
             token_full = get_token_full()
@@ -527,8 +561,13 @@ def is_in_symbol_table(token_content):
 '''
 ############################   ↓ TO DO ↓   ############################
 
-x Push argument to symbol table
-x Make sure to push "this" as first argument
-x Looking at after line 16 in Main.vm
+x Push argument to symbol table - Make sure this is working
+x Make sure to push "this" as first argument - if METHOD !
+x Looking at after line 19 in Main.vm
+
+x In the function: def compile_do(token_full, write_token_file_object, write_vm_file_object):
+  We need to ensure that it will "pop temp 0" if we have a void return
+  This is important for built in functions from the os that always return void
+  *** Need to properly check for this.  At the moment it is always popping ***
 
 '''
