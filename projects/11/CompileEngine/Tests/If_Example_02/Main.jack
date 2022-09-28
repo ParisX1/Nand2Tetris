@@ -1,0 +1,13 @@
+class Main {
+    function void main() {
+        var int myInt;
+        let myInt = 1;
+        if (myInt = 1) {
+            let myInt = 2;
+        }
+        else {
+            let myInt = 3;
+        }
+        return;
+    }
+}
