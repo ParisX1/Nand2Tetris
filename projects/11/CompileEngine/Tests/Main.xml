@@ -182,7 +182,6 @@
 </expression>
 <symbol>;</symbol>
 </letStatement>
-<ifStatement>
 <keyword>if</keyword>
 <symbol>(</symbol>
 <expression>
@@ -206,7 +205,6 @@
 <symbol>)</symbol>
 <symbol>{</symbol>
 <statements>
-<ifStatement>
 <keyword>if</keyword>
 <symbol>(</symbol>
 <expression>
@@ -343,7 +341,6 @@
 <subroutineBody>
 <symbol>{</symbol>
 <statements>
-<ifStatement>
 <keyword>if</keyword>
 <symbol>(</symbol>
 <expression>

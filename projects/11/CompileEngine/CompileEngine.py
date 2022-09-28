@@ -84,20 +84,29 @@ def compile_subroutine(token_full, write_token_file_object, write_vm_file_object
     compile_subroutine_body(token_full, write_token_file_object, write_vm_file_object)       # Subroutine body
 
 def compile_parameter_list(token_full, write_token_file_object):
+    global token_list
+    global token_num
+    global symbol_table_subroutine
     parameter_count = 0
+
     write_text_to_file("<parameterList>", write_token_file_object)
     token_content = get_token_content(token_full)
     while token_content != ")":
+        
         add_tokens_upto_delim(token_full, token_content, write_token_file_object)
         token_full = get_token_full()
         token_content = get_token_content(token_full)
-        parameter_count += 1
+
+        if get_token_type(token_full) == "identifier":
+            variable_name = get_token_content(token_list[token_num])
+            var_type = get_token_content(token_list[token_num - 1])
+            add_to_symbol_table_subroutine(variable_name, var_type, "argument", parameter_count)
+            parameter_count += 1
+
     write_text_to_file("</parameterList>", write_token_file_object)
-    #return parameter_count
     
 def compile_subroutine_body(token_full, write_token_file_object, write_vm_file_object):
-    global symbol_table_subroutine
-    # local_count = 0
+    
     write_text_to_file("<subroutineBody>", write_token_file_object)
     add_tokens_upto_delim(token_full, '{', write_token_file_object)
     token_full = get_token_full()
@@ -226,13 +235,17 @@ def compile_let(token_full, write_token_file_object, write_vm_file_object):
     write_text_to_file("</letStatement>", write_token_file_object) 
 
 def compile_if(token_full, write_token_file_object, write_vm_file_object):
-    write_text_to_file("<ifStatement>", write_token_file_object) 
-    
+    if_counter = 0
+
     add_tokens_upto_delim(token_full, '(', write_token_file_object)
     token_full = get_token_full()
     compile_expression(token_full, write_token_file_object, write_vm_file_object)
     token_full = get_token_full()
     add_tokens_upto_delim(token_full, '{', write_token_file_object)
+
+    write_text_to_file("if-goto IF_TRUE" + str(if_counter), write_vm_file_object) 
+    write_text_to_file("goto IF_FALSE" + str(if_counter), write_vm_file_object) 
+    write_text_to_file("label IF_TRUE" + str(if_counter), write_vm_file_object)
 
     token_full = get_token_full()
     compile_statements(token_full, write_token_file_object, write_vm_file_object)
@@ -341,11 +354,16 @@ def compile_expression(token_full, write_token_file_object, write_vm_file_object
         token_full = get_token_full()
         compile_term(token_full, write_token_file_object, write_vm_file_object)
 
+        op_string = convert_op_to_string(token_content)
+        write_text_to_file(op_string, write_vm_file_object)
+
+        '''
         if token_content == "+": write_text_to_file("add", write_vm_file_object)
         if token_content == "-": write_text_to_file("sub", write_vm_file_object)
         if token_content == "*": write_text_to_file("call Math.multiply 2", write_vm_file_object)
         if token_content == "/": write_text_to_file("call Math.divide 2", write_vm_file_object)        
-        
+        '''
+
         token_full = get_token_full()
         token_content = get_token_content(token_full)
     
@@ -435,7 +453,7 @@ def compile_expression_list(token_full, write_token_file_object, write_vm_file_o
     global token_num
     class_name = get_token_content(token_list[1])
     # Add "this" to symbol table
-    add_to_symbol_table_subroutine("this", class_name, "arg", 0)
+    # add_to_symbol_table_subroutine("this", class_name, "arg", 0)
 
     num_arguments = 0
     write_text_to_file("<expressionList>", write_token_file_object) 
@@ -461,8 +479,6 @@ def compile_expression_list(token_full, write_token_file_object, write_vm_file_o
             token_content = get_token_content(token_full)
     write_text_to_file("</expressionList>", write_token_file_object) 
     return num_arguments
-
-############################    ↓ VM WRITERS ↓    ############################
 
 ############################ ↓ HELPER FUNCTIONS ↓ ############################
 
@@ -494,6 +510,21 @@ def add_to_symbol_table_subroutine(variable_name, var_type, var_kind, subroutine
                                               'Kind' : var_kind,
                                               'Count' : subroutine_var_count
                                              }
+
+def convert_op_to_string(op_term):
+    # ['+','-','*','/','&amp;','|','&lt;','&gt;','=']
+    op_term_dict = {'+'    : "add",
+                    '-'    : "sub",
+                    '*'    : "call Math.multiply 2",
+                    '/'    : "call Math.divide 2",
+                    '&amp;': "and",
+                    '|'    : "or",
+                    '&lt;' : "lt",
+                    '&gt;' : "gt",
+                    '='    : "eq"
+
+                   }
+    return op_term_dict[op_term]
 
 def get_token_full():
     global token_num

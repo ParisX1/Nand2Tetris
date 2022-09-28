@@ -30,10 +30,20 @@ call Main.nextMask 1
 pop local 0
 push local 1
 push constant 16
+gt
 not
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push argument 0
 push local 0
+and
 push constant 0
+eq
 not
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
 push constant 8000
 push local 1
 add
@@ -48,10 +58,16 @@ call Memory.poke 2
 pop temp 0
 push constant 0
 pop local 2
+label WHILE_END0
 push constant 0
 return
 function Main.nextMask 0
+push argument 0
 push constant 0
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
 push constant 1
 return
 push constant 2
@@ -59,16 +75,23 @@ call Math.multiply 2
 return
 function Main.fillMemory 0
 label WHILE_EXP0
+push argument 1
 push constant 0
+gt
 not
 if-goto WHILE_END0
+push argument 0
+push argument 2
 call Memory.poke 2
 pop temp 0
+push argument 1
 push constant 1
 sub
-pop 
+pop argument 1
+push argument 0
 push constant 1
 add
-pop 
+pop argument 0
+label WHILE_END0
 push constant 0
 return
