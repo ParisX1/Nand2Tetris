@@ -184,6 +184,7 @@ def compile_statements(token_full, write_token_file_object, write_vm_file_object
     write_text_to_file("</statements>", write_token_file_object) 
 
 def compile_let(token_full, write_token_file_object, write_vm_file_object):
+    is_array_let_statement = False
     var_to_assign = ""
     
     write_text_to_file("<letStatement>", write_token_file_object) 
@@ -202,9 +203,16 @@ def compile_let(token_full, write_token_file_object, write_vm_file_object):
     token_full = get_token_full()
     token_content = get_token_content(token_full)
     if token_content == '[':
+        is_array_let_statement = True
+        array_var_name = get_token_content(token_list[token_num - 1])
+
         add_tokens_upto_delim(token_full, token_content, write_token_file_object) 
         token_full = get_token_full()
         compile_expression(token_full, write_token_file_object, write_vm_file_object)
+        
+        assign_to_var_string = get_variable_details(array_var_name)
+        write_text_to_file("push " + assign_to_var_string, write_vm_file_object)
+        write_text_to_file("add", write_vm_file_object)
 
     token_full = get_token_full()
     add_tokens_upto_delim(token_full, '=', write_token_file_object) 
@@ -215,10 +223,17 @@ def compile_let(token_full, write_token_file_object, write_vm_file_object):
     
     add_tokens_upto_delim(token_full, ';', write_token_file_object) 
     
-    assign_to_var_string = get_variable_details(var_to_assign)
-    write_text_to_file("pop " + assign_to_var_string, write_vm_file_object)
+    if not is_array_let_statement:
+        assign_to_var_string = get_variable_details(var_to_assign)
+        write_text_to_file("pop " + assign_to_var_string, write_vm_file_object)
 
     write_text_to_file("</letStatement>", write_token_file_object) 
+
+    if is_array_let_statement:
+        write_text_to_file("pop temp 0", write_vm_file_object)
+        write_text_to_file("pop pointer 1", write_vm_file_object)
+        write_text_to_file("push temp 0", write_vm_file_object)
+        write_text_to_file("pop that 0", write_vm_file_object)
 
 def compile_if(token_full, write_token_file_object, write_vm_file_object):
     global if_counter
@@ -342,7 +357,6 @@ def compile_return(token_full, write_token_file_object, write_vm_file_object):
     write_text_to_file("</returnStatement>", write_token_file_object) 
 
     write_text_to_file("return", write_vm_file_object)
-    # symbol_table_subroutine.clear()
 
 def compile_expression(token_full, write_token_file_object, write_vm_file_object):
     write_text_to_file("<expression>", write_token_file_object) 
@@ -358,13 +372,6 @@ def compile_expression(token_full, write_token_file_object, write_vm_file_object
 
         op_string = convert_op_to_string(token_content)
         write_text_to_file(op_string, write_vm_file_object)
-
-        '''
-        if token_content == "+": write_text_to_file("add", write_vm_file_object)
-        if token_content == "-": write_text_to_file("sub", write_vm_file_object)
-        if token_content == "*": write_text_to_file("call Math.multiply 2", write_vm_file_object)
-        if token_content == "/": write_text_to_file("call Math.divide 2", write_vm_file_object)        
-        '''
 
         token_full = get_token_full()
         token_content = get_token_content(token_full)
@@ -403,24 +410,25 @@ def compile_term(token_full, write_token_file_object, write_vm_file_object):
     else:
         # Add identifier name
         add_tokens_upto_delim(token_full, token_content, write_token_file_object)
+        token_content = get_token_content(token_full)
+        token_type = get_token_type(token_full)
 
-        if get_token_type(token_full) == "integerConstant":
+        if token_type == "integerConstant":
             integer_value = get_token_content(token_full)
             write_text_to_file("push constant " + integer_value, write_vm_file_object)
+        
+        if token_type == "stringConstant":
+            compile_string_constant(token_content, write_vm_file_object)
 
-        if get_token_content(token_full) == "true":
+        if token_content == "true":
             write_text_to_file("push constant 0\n" + "not", write_vm_file_object)
         
-        if get_token_content(token_full) == "false":
+        if token_content == "false":
             write_text_to_file("push constant 0", write_vm_file_object)
 
         elif is_in_symbol_table(token_content):
             assign_to_var_string = get_variable_details(token_content)
             write_text_to_file("push " + assign_to_var_string, write_vm_file_object)
-
-        # Add Category: field, static, var, arg, class, subroutine
-        # Add Index: field, static, var or arg corresponding to symbol table
-        # Add Usage: declared or used
 
     token_type = get_token_type(token_full) # Token type of previous token
     token_full = get_token_full()
@@ -428,12 +436,21 @@ def compile_term(token_full, write_token_file_object, write_vm_file_object):
     
     # Look at next token for Array or Method
     if token_type == "identifier": # Check type of previous token
+        
         if token_content == '[':
+            '''
+            array_var_name = get_token_content(token_list[token_num - 1])
+            assign_to_var_string = get_variable_details(array_var_name)
+            write_text_to_file("push " + assign_to_var_string, write_vm_file_object)
+            write_text_to_file("add", write_vm_file_object)
+            '''
+
             add_tokens_upto_delim(token_full, '[', write_token_file_object)
             token_full = get_token_full()
             compile_expression(token_full, write_token_file_object, write_vm_file_object)
             token_full = get_token_full()
             add_tokens_upto_delim(token_full, ']', write_token_file_object)
+
         elif token_content == '.':
             add_tokens_upto_delim(token_full, '(', write_token_file_object)
             token_full = get_token_full()
@@ -479,6 +496,16 @@ def compile_expression_list(token_full, write_token_file_object, write_vm_file_o
             token_content = get_token_content(token_full)
     write_text_to_file("</expressionList>", write_token_file_object) 
     return num_arguments
+
+def compile_string_constant(token_content, write_vm_file_object):
+    string_length = len(token_content)
+    write_text_to_file("push constant " + str(string_length), write_vm_file_object)
+    write_text_to_file("call String.new 1", write_vm_file_object)
+    for i in range(len(token_content)):
+        char = token_content[i]
+        char_as_number = get_char_value(char)
+        write_text_to_file("push constant " + str(char_as_number), write_vm_file_object)
+        write_text_to_file("call String.appendChar 2", write_vm_file_object)
 
 ############################ ↓ HELPER FUNCTIONS ↓ ############################
 
@@ -555,6 +582,9 @@ def get_variable_details(var_to_assign):
         return_string += symbol_table_subroutine[var_to_assign]['Kind']
         return_string += ' ' + str(symbol_table_subroutine[var_to_assign]['Count'])
     return return_string
+
+def get_char_value(char):
+    return ord(char)
 
 def is_var_dec(token_content):
     if (token_content == 'var') or (token_content == 'field') or (token_content == 'static'):
