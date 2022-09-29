@@ -11,10 +11,16 @@ class Math {
 
     /** Initializes the library. */
     function void init() {
+
+
+
     }
 
     /** Returns the absolute value of x. */
     function int abs(int x) {
+        var int answer;
+        answer = multiply(x, x);
+        return sqrt(answer);
     }
 
     /** Returns the product of x and y. 
@@ -23,6 +29,22 @@ class Math {
      *  the Jack expressions x*y and multiply(x,y) return the same value.
      */
     function int multiply(int x, int y) {
+        /*
+        sum = 0
+        shiftedX = x
+        for i = 0 ... w - 1 do
+        if ((i’th bit of y) == 1)
+        sum = sum + shiftedX
+        shiftedX = shiftedX * 2
+        return sum
+        */
+        var int sum;
+        var int i;
+        let sum = 0;
+        let i = 0;
+
+
+
     }
 
     /** Returns the integer part of x/y.
@@ -31,17 +53,38 @@ class Math {
      *  the Jack expressions x/y and divide(x,y) return the same value.
      */
     function int divide(int x, int y) {
+        /*
+        divide (x , y) :
+        div = 0
+        rem = x
+        while rem ≤ x
+        rem = rem – y
+        div = div + 1
+        return div
+        */
+
     }
 
     /** Returns the integer part of the square root of x. */
     function int sqrt(int x) {
+        /*
+        // by performing a binary search in the range 0 ... 2^(n/2) −1
+        sqrt (x) :
+        y = 0
+        for j = n/2 - 1 ... 0 do
+        if then
+        return y
+        */
+
     }
 
     /** Returns the greater number. */
     function int max(int a, int b) {
+
     }
 
     /** Returns the smaller number. */
     function int min(int a, int b) {
+    
     }
 }

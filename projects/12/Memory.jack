@@ -8,27 +8,61 @@
  * memory (RAM), and allocation and recycling of memory blocks. The Hack RAM
  * consists of 32,768 words, each holding a 16-bit binary number.
  */ 
+
 class Memory {
 
-    /** Initializes the class. */
+    static Array ram;
+    static Array heap;
+    static Array freeList;
+    static int heapEnd;
+
     function void init() {
+        let ram = 0;
+        let heap = 2048;
+        let freeList = 2048;
+        let heap[0] = 0;
+        let heap[1] = 14335; // Length of heap
+        let heapEnd = 16384;
+        //while(true){}
+        return;
     }
 
-    /** Returns the RAM value at the given address. */
     function int peek(int address) {
+        return ram[address];
     }
 
-    /** Sets the RAM value at the given address to the given value. */
     function void poke(int address, int value) {
+        let ram[address] = value;
+        return;
     }
 
-    /** Finds an available RAM block of the given size and returns
-     *  a reference to its base address. */
-    function int alloc(int size) {
+    function int alloc(int size) { 
+        var Array currentMemoryBlock;
+        var boolean freeMemoryFound;
+        let currentMemoryBlock = freeList;
+        let freeMemoryFound = false;
+        while (~freeMemoryFound) {
+            if ( currentMemoryBlock[1] > (size + 1) ) {
+                let currentMemoryBlock[size+2] = currentMemoryBlock;            // Reset linked list pointer
+                let currentMemoryBlock[size+3] = currentMemoryBlock[1] - size;  // Reset free size for this block
+                let currentMemoryBlock = currentMemoryBlock[0] + (size + 2);    // Reset pointer to this segment
+                let freeMemoryFound = true;
+            }
+
+            else {
+                let currentMemoryBlock = currentMemoryBlock[0];
+            }
+        }
+        return currentMemoryBlock;
     }
 
-    /** De-allocates the given object (cast as an array) by making
-     *  it available for future allocations. */
     function void deAlloc(Array o) {
+        var Array currentMemoryBlock;
+        let currentMemoryBlock = freeList;
+        while (currentMemoryBlock[0] > 0) {
+            let currentMemoryBlock = currentMemoryBlock[0];
+        }
+        let currentMemoryBlock[0] = o;
+        return;
     }    
 }
