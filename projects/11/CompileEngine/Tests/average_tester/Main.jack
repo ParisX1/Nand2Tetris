@@ -28,9 +28,9 @@ class Main {
         }
 
         do Memory.poke(20000, sum/length);	
-    	do Output.printString("The average is: ");
-    	do Output.printInt(sum / length);
-    	do Output.println();
+    //	do Output.printString("The average is: ");
+    //	do Output.printInt(sum / length);
+    //	do Output.println();
         
         return;
     }

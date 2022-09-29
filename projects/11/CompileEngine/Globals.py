@@ -14,6 +14,7 @@ token_list = []
 multiline_comment = False
 is_debug_mode = True
 if_counter = 0
+while_counter = 0
 
 '''
 symbol_table_subroutine[variable_name] = {

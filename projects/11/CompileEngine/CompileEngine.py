@@ -279,8 +279,8 @@ def compile_if(token_full, write_token_file_object, write_vm_file_object):
     write_text_to_file("</ifStatement>", write_token_file_object)  
 
 def compile_while(token_full, write_token_file_object, write_vm_file_object):
-    
-    write_text_to_file("label WHILE_EXP0", write_vm_file_object)
+    global while_counter
+    write_text_to_file("label WHILE_EXP" + str(while_counter), write_vm_file_object)
 
     write_text_to_file("<whileStatement>", write_token_file_object) 
     add_tokens_upto_delim(token_full, '(', write_token_file_object)
@@ -288,20 +288,21 @@ def compile_while(token_full, write_token_file_object, write_vm_file_object):
     compile_expression(token_full, write_token_file_object, write_vm_file_object)
 
     write_text_to_file("not", write_vm_file_object)
-    write_text_to_file("if-goto WHILE_END0", write_vm_file_object)
+    write_text_to_file("if-goto WHILE_END" + str(while_counter), write_vm_file_object)
 
     token_full = get_token_full()
     add_tokens_upto_delim(token_full, '{', write_token_file_object)
     token_full = get_token_full()
     compile_statements(token_full, write_token_file_object, write_vm_file_object)
     
-    write_text_to_file("goto WHILE_EXP0", write_vm_file_object)
+    write_text_to_file("goto WHILE_EXP" + str(while_counter), write_vm_file_object)
 
     token_full = get_token_full()
     add_tokens_upto_delim(token_full, '}', write_token_file_object)
     write_text_to_file("</whileStatement>", write_token_file_object) 
 
-    write_text_to_file("label WHILE_END0", write_vm_file_object)
+    write_text_to_file("label WHILE_END"+ str(while_counter), write_vm_file_object)
+    while_counter += 1
 
 def compile_do(token_full, write_token_file_object, write_vm_file_object):
     # Do statement: call subroutine
@@ -383,6 +384,7 @@ def compile_term(token_full, write_token_file_object, write_vm_file_object):
     global token_num
     unaryOp = ['-', '~']
     num_arguments = 0
+    is_array_let_statement = False
 
     token_content = get_token_content(token_full)
     write_text_to_file("<term>", write_token_file_object) 
@@ -438,12 +440,9 @@ def compile_term(token_full, write_token_file_object, write_vm_file_object):
     if token_type == "identifier": # Check type of previous token
         
         if token_content == '[':
-            '''
+            is_array_let_statement = True
             array_var_name = get_token_content(token_list[token_num - 1])
             assign_to_var_string = get_variable_details(array_var_name)
-            write_text_to_file("push " + assign_to_var_string, write_vm_file_object)
-            write_text_to_file("add", write_vm_file_object)
-            '''
 
             add_tokens_upto_delim(token_full, '[', write_token_file_object)
             token_full = get_token_full()
@@ -465,6 +464,11 @@ def compile_term(token_full, write_token_file_object, write_vm_file_object):
             write_text_to_file(call_subroutine_string, write_vm_file_object)
 
     write_text_to_file("</term>", write_token_file_object) 
+
+    if is_array_let_statement:
+        write_text_to_file("add", write_vm_file_object)
+        write_text_to_file("pop pointer 1", write_vm_file_object)
+        write_text_to_file("push that 0", write_vm_file_object)
 
 def compile_expression_list(token_full, write_token_file_object, write_vm_file_object):
     global symbol_table_subroutine
