@@ -65,6 +65,9 @@ gt
 if-goto IF_TRUE0
 goto IF_FALSE0
 label IF_TRUE0
+push constant 0
+not
+pop local 1
 push argument 0
 push constant 2
 add
@@ -126,9 +129,6 @@ add
 add
 pop static 2
 label IF_FALSE1
-push constant 0
-not
-pop local 1
 goto IF_END0
 label IF_FALSE0
 push constant 0

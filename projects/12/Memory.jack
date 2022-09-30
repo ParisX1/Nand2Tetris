@@ -23,7 +23,6 @@ class Memory {
         let heap[0] = 0;
         let heap[1] = 14335; // Length of heap
         let heapEnd = 16384;
-        //while(true){}
         return;
     }
 

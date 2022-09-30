@@ -23,7 +23,6 @@ class Memory {
         let heap[0] = 0;
         let heap[1] = 14335; // Length of heap
         let heapEnd = 16384;
-        //while(true){}
         return;
     }
 
@@ -44,6 +43,7 @@ class Memory {
         while (~freeMemoryFound) {
             if ( currentMemoryBlock[1] > (size + 1) ) {
 
+                let freeMemoryFound = true;
                 let currentMemoryBlock[size + 2] = currentMemoryBlock[0];               // Reset linkedlist pointer to next free block
                 let currentMemoryBlock[size + 3] = currentMemoryBlock[1] - (size + 2);  // Reset free size for this block
                 
@@ -53,28 +53,13 @@ class Memory {
                 if (currentMemoryBlock = freeList) {                                    // If we find the free block stright from the freelist
                     let freeList = currentMemoryBlock + (size + 2);                     // Reset linkedlist pointer to remaining free segment
                 }
-                
-                //else  {                                                                 
-                //    let currentMemoryBlock = currentMemoryBlock + (size + 2);           
-                //}
-
-                let freeMemoryFound = true;
-
-                /*
-                let currentMemoryBlock[0] = 0;                                      // 
-                let currentMemoryBlock[1] = currentMemoryBlock;                     //  
-                //let currentMemoryBlock[size+2] = currentMemoryBlock;              // 
-                let currentMemoryBlock[size + 3] = currentMemoryBlock[1] - size;    // Reset free size for this block
-                let currentMemoryBlock = currentMemoryBlock[0] + (size + 2);        // Reset pointer to this segment
-                let freeMemoryFound = true;
-                */
 
             }
             else {
                 let currentMemoryBlock = currentMemoryBlock[0];
             }
         }
-        return currentMemoryBlock + 2; // Return pointer to base address of new memory segment
+        return currentMemoryBlock + 2;                                                  // Return pointer to base address of new memory segment
     }
 
     function void deAlloc(Array o) {
@@ -87,8 +72,3 @@ class Memory {
         return;
     }    
 }
-/*
-x Alloc need to set the linked list the right way around
-x The first part should have the size reset to the size of the area
-x The address should then point to the next segment
-*/
