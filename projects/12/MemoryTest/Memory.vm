@@ -70,7 +70,11 @@ push constant 2
 add
 push local 0
 add
+push constant 0
 push local 0
+add
+pop pointer 1
+push that 0
 pop temp 0
 pop pointer 1
 push temp 0
@@ -86,6 +90,8 @@ add
 pop pointer 1
 push that 0
 push argument 0
+push constant 2
+add
 sub
 pop temp 0
 pop pointer 1
@@ -94,13 +100,32 @@ pop that 0
 push constant 0
 push local 0
 add
+push constant 0
+pop temp 0
 pop pointer 1
-push that 0
+push temp 0
+pop that 0
+push constant 1
+push local 0
+add
+push argument 0
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push local 0
+push static 2
+eq
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push local 0
 push argument 0
 push constant 2
 add
 add
-pop local 0
+pop static 2
+label IF_FALSE1
 push constant 0
 not
 pop local 1
@@ -116,6 +141,8 @@ label IF_END0
 goto WHILE_EXP0
 label WHILE_END0
 push local 0
+push constant 2
+add
 return
 function Memory.deAlloc 1
 push static 2

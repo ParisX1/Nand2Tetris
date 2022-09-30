@@ -43,19 +43,24 @@ class Memory {
         let freeMemoryFound = false;
         while (~freeMemoryFound) {
             if ( currentMemoryBlock[1] > (size + 1) ) {
-                let currentMemoryBlock[0] = 0;                                  // Reset linked list pointer
-                let currentMemoryBlock[1] = currentMemoryBlock;                     // Reset linked list pointer
-                //let currentMemoryBlock[size+2] = currentMemoryBlock;            // Reset linked list pointer
-                let currentMemoryBlock[size+3] = currentMemoryBlock[1] - size;  // Reset free size for this block
-                let currentMemoryBlock = currentMemoryBlock[0] + (size + 2);    // Reset pointer to this segment
-                let freeMemoryFound = true;
-            }
 
+                let freeMemoryFound = true;
+                let currentMemoryBlock[size + 2] = currentMemoryBlock[0];               // Reset linkedlist pointer to next free block
+                let currentMemoryBlock[size + 3] = currentMemoryBlock[1] - (size + 2);  // Reset free size for this block
+                
+                let currentMemoryBlock[0] = 0;                                          // Set header[0] to zero
+                let currentMemoryBlock[1] = size;                                       // Set header[1] to alloc size
+                
+                if (currentMemoryBlock = freeList) {                                    // If we find the free block stright from the freelist
+                    let freeList = currentMemoryBlock + (size + 2);                     // Reset linkedlist pointer to remaining free segment
+                }
+
+            }
             else {
                 let currentMemoryBlock = currentMemoryBlock[0];
             }
         }
-        return currentMemoryBlock;
+        return currentMemoryBlock + 2;                                                  // Return pointer to base address of new memory segment
     }
 
     function void deAlloc(Array o) {
@@ -68,8 +73,3 @@ class Memory {
         return;
     }    
 }
-/*
-x Alloc need to set the linked list the right way around
-x The first part should have the size reset to the size of the area
-x The address should then point to the next segment
-*/
