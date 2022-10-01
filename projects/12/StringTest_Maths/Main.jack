@@ -1,0 +1,30 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/MathTest/Main.jack
+
+/** Test program for the OS Math class. */
+class Main {
+
+    /** Performs various mathematical operations, using calls to the Math class methods. */
+    function void main() {
+        var Array r;          // stores the test results;
+        
+        let r = 8000;
+    
+        let r[0] = -16123;                  		// val
+        let r[1] = -r[0] ;           				// val = abs(val)
+        let r[2] = r[1] - ( (r[1] / 10) * 10);      // lastDigit = val % 10 (=3)
+        let r[3] = r[1] / 10;               	    // val = val // 10      (=3276)
+        let r[4] = r[3] - ( (r[3] / 10) * 10);	    // lastDigit = val % 10 ()
+        
+		let r[5] = r[1] / 10;		// 3276
+		let r[6] = r[5] * 10;		// 32760
+		let r[7] = r[1] - r[6];		// 7
+		// Gap
+		let r[9] = 9 / 3;			// 3
+		let r[10] = 9 / 4;			// 2
+		
+		return;
+    }
+}

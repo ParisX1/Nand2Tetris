@@ -108,11 +108,7 @@ class String {
         var int lastDigit;
         var char currentChar;
         
-        //let lastDigit = val - ( (val / 10) * 10); // Math.divide performs integer division
-        let lastDigit = val / 10;
-        let lastDigit = lastDigit * 10; 
-        let lastDigit = val - lastDigit; 
-
+        let lastDigit = val - ( (val / 10) * 10); // Math.divide performs integer division
         let currentChar = String.digitAsChar(lastDigit);
         
         if (val < 10){

@@ -20,8 +20,8 @@ class Array {
     }
 
     /** Disposes this array. */
-    method void dispose() {
-        do Memory.deAlloc(this);
+    function void dispose(Array myArray) {
+        do Memory.deAlloc(myArray);
         return;
     }
 }

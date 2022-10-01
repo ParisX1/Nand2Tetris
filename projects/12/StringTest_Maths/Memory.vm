@@ -174,4 +174,12 @@ pop pointer 1
 push temp 0
 pop that 0
 push constant 0
+push argument 0
+add
+push constant 0
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push constant 0
 return

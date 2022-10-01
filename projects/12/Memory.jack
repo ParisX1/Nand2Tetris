@@ -42,7 +42,6 @@ class Memory {
         let freeMemoryFound = false;
         while (~freeMemoryFound) {
             if ( currentMemoryBlock[1] > (size + 1) ) {
-
                 let freeMemoryFound = true;
                 let currentMemoryBlock[size + 2] = currentMemoryBlock[0];               // Reset linkedlist pointer to next free block
                 let currentMemoryBlock[size + 3] = currentMemoryBlock[1] - (size + 2);  // Reset free size for this block
@@ -69,6 +68,7 @@ class Memory {
             let currentMemoryBlock = currentMemoryBlock[0];
         }
         let currentMemoryBlock[0] = o;
+        let o[0] = 0;
         return;
     }    
 }

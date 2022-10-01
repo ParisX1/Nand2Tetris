@@ -51,18 +51,9 @@ class Math {
         var int sum;
         var int i;
         var Array yArray;
-        var boolean makeNegative;
         let sum = 0;
         let i = 0;
         let yArray = Math.createBinaryArray(y);
-        let makeNegative = false;
-
-         // Check for negatives
-        if ( (x < 0) | (y < 0 ) ) {                 // Are either x or y < 0?
-            if ( ~((x < 0) & (y < 0 )) ) {
-                let makeNegative = true;            // Return a negative if they are not both negative
-            }
-        }
 
         while ( i < 16 ) {
             if (yArray[i] = 1) {
@@ -71,12 +62,7 @@ class Math {
             let x = x + x;
             let i = i + 1;
         }
-        if(makeNegative){
-            return -sum;
-        }
-        else{
-            return sum;
-        }
+        return sum;
     }
 
     function Array createBinaryArray(int number){
