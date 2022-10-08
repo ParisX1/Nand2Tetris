@@ -199,21 +199,22 @@ class Output {
         var Array charToPrint;
         var int memoryAddress;
         var int nextLine;
+        var int linesPerChar;
         var int i;
 
         // Get char and assign to array
         let charToPrint = Output.getMap(c);
-        let nextLine = 512;
+        let nextLine = 32;
+        let linesPerChar = 11;
         
-        // Set memory location values (ie print char)
-        let memoryAddress = (cursorX * 64) + (cursorY * 23);
-        // let memoryAddress = (cursorY * 32 * 11) + (cursorX / 2);
+        // Set base memory to cursor location
+        let memoryAddress = (cursorX / 2) + (cursorY * linesPerChar * nextLine);
 
+        // Set memory location values (ie print char)
         let i = 0;
-        while (i < 11) {
+        while (i < linesPerChar) {
             let screenArray[memoryAddress] = charToPrint[i];
-            let memoryAddress = memoryAddress + 512;
-            // let memoryAddress = memoryAddress + 32;
+            let memoryAddress = memoryAddress + nextLine;
             let i = i + 1;
         }
 
@@ -235,7 +236,7 @@ class Output {
         let strLen = s.length();
         let i = 0;
         while (i < strLen){
-            do Output.printChar(s[i]);
+            do Output.printChar(s.charAt(i));
             let i = i + 1;
         }
         return;
@@ -245,8 +246,9 @@ class Output {
      *  and advances the cursor appropriately. */
     function void printInt(int i) {
         var String intStr;
-        let intStr = String.setInt(i);
+        do intStr.setInt(i);
         do Output.printString(intStr);
+        do intStr.dispose();
         return;
     }
 
