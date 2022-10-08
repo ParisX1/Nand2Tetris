@@ -124,7 +124,6 @@ class String {
             do appendChar(currentChar);
         }
         return;
-        
     }
 
     function char newLine() {
@@ -156,5 +155,4 @@ class String {
     function char digitAsChar(int digitToConvert){
         return digitToConvert + 48;
     }
-
 }
