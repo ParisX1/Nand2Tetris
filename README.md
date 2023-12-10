@@ -4,5 +4,5 @@ All projects from online computer systems course: _Build a Modern Computer from 
 
 Completed both courses: Part I and Part II
 
-https://www.coursera.org/learn/build-a-computer
+https://www.coursera.org/learn/build-a-computer  
 https://www.coursera.org/learn/nand2tetris2
